@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="#FFF"
+        android:centerColor="#FFF"
+        android:endColor="#EFEFEF"
+        android:angle="270" />
+</shape>
+<!--  
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+		<shape android:shape="rectangle">
+		    <gradient
+		        android:startColor="#FFF"
+		        android:endColor="#EEE"
+		        android:angle="270" />
+		</shape>	
+	</item>
+    <item>
+		<nine-patch android:src="@drawable/img_list_border" />
+    </item>
+</layer-list>
+-->
