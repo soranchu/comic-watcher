@@ -2,102 +2,98 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/shape_list_background"
     android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:baselineAligned="true"
-        android:orientation="horizontal" >
+        android:paddingRight="12dp" >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+        <TextView
+            android:id="@+id/txt_top_comicTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:layout_weight="1"
-            android:background="@drawable/shape_list_rect"
-            android:orientation="vertical" >
+            android:paddingBottom="8dp"
+            android:paddingLeft="12dp"
+            android:paddingTop="8dp"
+            android:text="宇宙兄弟"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/gray_dark"
+            android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="true"
-                android:paddingRight="12dp" >
+        <TextView
+            android:id="@+id/txt_top_notificationNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/shape_notification_oval"
+            android:minHeight="24dp"
+            android:minWidth="24dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
+            android:text="1"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#FFF"
+            android:textStyle="bold" />
+    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/txt_top_comicTitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_weight="1"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="12dp"
-                    android:paddingTop="8dp"
-                    android:text="宇宙兄弟"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
 
-                <TextView
-                    android:id="@+id/txt_top_notificationNum"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@drawable/shape_notification_oval"
-                    android:minHeight="24dp"
-                    android:minWidth="24dp"
-                    android:paddingBottom="4dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:paddingTop="4dp"
-                    android:text="1"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#FFF"
-                    android:textStyle="bold" />
+        <TextView
+            android:id="@+id/txt_top_series_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:paddingLeft="12dp"
+            android:text="@string/txt_series_num"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/gray_normal" />
 
-            </LinearLayout>
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:text="@string/txt_scheduled_date"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/gray_normal"
+            android:textStyle="normal" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingBottom="8dp"
+            android:paddingLeft="12dp"
+            android:text="@string/txt_reserved"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/green_normal"
+            android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/txt_top_series_num"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="12dp"
-                    android:text="@string/txt_series_num"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#666666" />
-
-                <TextView
-                    android:id="@+id/TextView01"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="8dp"
-                    android:text="@string/txt_scheduled_date"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#666666"
-                    android:textStyle="normal" />
-
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="12dp"
-                    android:text="予約済"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#6a8c18"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+        <TextView
+            android:id="@+id/TextView02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingLeft="12dp"
+            android:text="@string/txt_non-reserved"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/red_dark"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
 
 </LinearLayout>

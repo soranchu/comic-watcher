@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -10,9 +11,9 @@
         android:layout_height="wrap_content" >
 
         <ImageView
-            android:id="@+id/img_comicThumb"
+            android:id="@+id/img_detail_comicThumb"
             android:layout_width="84dp"
-            android:layout_height="124dp" />
+            android:layout_height="128dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -25,9 +26,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:paddingTop="8dp"
                 android:text="宇宙兄弟"
                 android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/gray_dark"
                 android:textStyle="bold" />
 
             <TextView
@@ -35,18 +38,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:paddingTop="4dp"
                 android:text="小山 宙哉"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray_dark" />
 
             <TextView
                 android:id="@+id/txt_detail_publisher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:paddingTop="4dp"
                 android:text="モーニングKC"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/gray_dark" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -60,14 +67,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:background="@drawable/shape_button_reserve_rect"
+                    android:background="@drawable/shape_btn_reserve"
                     android:paddingBottom="4dp"
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp"
                     android:paddingTop="4dp"
                     android:text="新刊予約"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#FFF"
+                    android:textColor="@color/white"
                     android:textStyle="bold" />
 
             </RelativeLayout>
