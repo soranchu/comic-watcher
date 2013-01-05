@@ -11,19 +11,19 @@ import android.widget.TextView;
 public class SearchResultAdapter extends ArrayAdapter<BookSeries> {
 
 	public SearchResultAdapter(Context ctx){
-		super(ctx, android.R.layout.simple_list_item_2);
+		super(ctx, R.layout.add_list_item);
 	}
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if( convertView == null ){
-			convertView = View.inflate(getContext(), android.R.layout.simple_list_item_2, null);
+			convertView = View.inflate(getContext(), R.layout.add_list_item, null);
 		}
-		TextView v1 = (TextView) convertView.findViewById(android.R.id.text1);
-		TextView v2 = (TextView) convertView.findViewById(android.R.id.text2);
+		TextView v1 = (TextView) convertView.findViewById(R.id.txt_add_list_item_title);
+		TextView v2 = (TextView) convertView.findViewById(R.id.txt_add_list_item_sub);
 		BookSeries bs = getItem(position);
-		v1.setText( bs.getTitle() + "/" + bs.getAuthor() );
-		v2.setText( bs.getBooks().size() + "冊 / 出版社:" + bs.getPublisher() + " genre:"+bs.getBookGenreId() );
+		v1.setText( bs.getTitle() );
+		v2.setText( bs.getBooks().size() + "冊 / " + bs.getAuthor() + " / " + bs.getPublisher() );
 
 		return convertView;
 	}
