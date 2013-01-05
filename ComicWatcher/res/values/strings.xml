@@ -15,4 +15,5 @@
     <string name="txt_non_reserved">未予約</string>
     <string name="txt_reserved">予約済</string>
     <string name="txt_haved">持ってる</string>
+    <string name="txt_reserve">%s巻を予約する</string>
 </resources>

@@ -73,6 +73,11 @@ public class DetailActivity extends Activity {
 					}
 				});
         	}
+        	if( bookSeries.getLatest().isOnSale() ){
+        		btnReserve.setVisibility(View.GONE);
+        	}else{
+        		btnReserve.setText(String.format(getResources().getText(R.string.txt_reserve).toString(),bookSeries.getLatestVolume()));
+        	}
         }
         
         for (BookInfo bi : bookSeries.getBooks()) {

@@ -57,7 +57,7 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 		final BookInfo bi = getItem(position);
 
 		txtVolume.setText(String.format(getContext().getResources().getText(R.string.txt_series_num).toString(), bi.getVolume()) );
-		if( "5".equals(bi.getAvailability()) ){
+		if( ! bi.isOnSale() ){
 			if( bi.getTitlePostFix() != null ){
 				txtRelease.setText(bi.getTitlePostFix() + "\n" + String.format(getContext().getResources().getText(R.string.txt_scheduled_date).toString(), bi.getSalesDate()));
 			}else{

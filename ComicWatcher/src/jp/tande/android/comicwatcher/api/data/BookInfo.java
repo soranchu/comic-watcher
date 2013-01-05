@@ -468,7 +468,7 @@ public class BookInfo implements Serializable{
 	private static Pattern pat = Pattern.compile(
 			"(.*?)\\s*" +			//1 base title
 			"(?:\\(|（)?\\s*" +		//brace
-			"(?:第|巻|[vV]ol(?:\\.|．)?)?\\s*" +	//
+			"(?:第|巻|[vV]ol(?:\\.|．|ume)?)?\\s*" +	//
 			"([0-9０-９]+)\\s*" + 	//2 number
 			"巻?\\s*" + 				//
 			"(?:\\)|）)?\\s*" +		//brace
@@ -746,5 +746,9 @@ public class BookInfo implements Serializable{
 
 	public void setThumbRequested(boolean thumbRequested) {
 		this.thumbRequested = thumbRequested;
+	}
+	
+	public boolean isOnSale(){
+		return ! "5".equals(getAvailability());
 	}
 }
