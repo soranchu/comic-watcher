@@ -7,7 +7,7 @@
     <string name="txt_series_num">%d巻</string>
     <string name="txt_scheduled_date">%s 発売予定</string>
     <string name="txt_release_date">%s 発売済</string>
-    <string name="txt_non-reserved">未予約</string>
+    <string name="txt_non_reserved">未予約</string>
     <string name="txt_reserved">予約済</string>
     <string name="txt_haved">持ってる</string>
 

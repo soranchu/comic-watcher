@@ -11,8 +11,8 @@
         android:layout_height="wrap_content" >
 
         <ImageView
-            android:id="@+id/img_detail_comicThumb"
-            android:layout_width="84dp"
+            android:id="@+id/img_detail_comic_thumb"
+            android:layout_width="96dp"
             android:layout_height="128dp" />
 
         <LinearLayout
