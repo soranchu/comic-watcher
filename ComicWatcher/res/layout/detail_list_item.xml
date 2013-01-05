@@ -54,6 +54,8 @@
         android:id="@+id/checkBox_haved"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingRight="12dp"
         android:text="@string/txt_haved"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/gray_dark"
