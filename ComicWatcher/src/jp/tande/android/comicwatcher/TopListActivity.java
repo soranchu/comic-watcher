@@ -13,7 +13,7 @@ public class TopListActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.top_list);
+        setContentView(R.layout.top);
         /*
         BookInfo b = new BookInfo();
         b.setItem(new BookInfo.Item());
