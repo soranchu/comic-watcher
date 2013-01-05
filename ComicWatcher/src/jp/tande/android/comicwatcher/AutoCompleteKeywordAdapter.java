@@ -27,8 +27,10 @@ public class AutoCompleteKeywordAdapter extends BaseAdapter implements
 	}
 	
 	public void addItem(String item){
-		if( ! sourceList.contains(item) ){
-			sourceList.add(item);
+		synchronized (sourceList) {
+			if( ! sourceList.contains(item) ){
+				sourceList.add(item);
+			}
 		}
 	}
 	
@@ -66,12 +68,14 @@ public class AutoCompleteKeywordAdapter extends BaseAdapter implements
 				Log.d(TAG, "perform filter");
 				FilterResults fr = new FilterResults();
 				ArrayList<String> list = new ArrayList<String>();
-				if( constraint == null ){
-					list.addAll(sourceList);
-				}else{
-					for (String s : sourceList) {
-						if( s.contains(constraint.toString()) ){
-							list.add(s);
+				synchronized (sourceList) {
+					if( constraint == null ){
+						list.addAll(sourceList);
+					}else{
+						for (String s : sourceList) {
+							if( s.contains(constraint.toString()) ){
+								list.add(s);
+							}
 						}
 					}
 				}
