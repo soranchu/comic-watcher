@@ -3,6 +3,7 @@
 
     <string name="app_name">ComicWatcher</string>
     <string name="add_item_title">新規追加</string>
+    <string name="item_detail_title">シリーズ詳細</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_refresh">Refresh</string>
@@ -10,7 +11,7 @@
     <string name="search_title">タイトルを入力してください</string>
     <string name="txt_series_num">%d巻</string>
     <string name="txt_scheduled_date">%s 発売予定</string>
-    <string name="txt_release_date">%s 発売済</string>
+    <string name="txt_release_date">%s</string>
     <string name="txt_non_reserved">未予約</string>
     <string name="txt_reserved">予約済</string>
     <string name="txt_haved">持ってる</string>

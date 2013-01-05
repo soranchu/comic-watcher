@@ -1,13 +1,35 @@
 package jp.tande.android.comicwatcher.api.data;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
-public class BookInfo {
+public class BookInfo implements Serializable{
+	private static final long serialVersionUID = 1L;
+
+	private transient Bitmap thumb;
+	private transient boolean thumbRequested = false;
+	
+	public String getBaseTitle() {
+		return baseTitle;
+	}
+
+
+	public String getTitlePostFix() {
+		return titlePostFix;
+	}
+
+
+	public int getVolume() {
+		return volume;
+	}
+
 	private static final String TAG="BookInfo";
-	public static class Item{
+	public static class Item implements Serializable{
+		private static final long serialVersionUID = 1L;
 		@Override
 		public String toString() {
 			return "Item [title=" + title + ", titleKana=" + titleKana
@@ -446,13 +468,13 @@ public class BookInfo {
 	private static Pattern pat = Pattern.compile(
 			"(.*?)\\s*" +			//1 base title
 			"(\\(|（)?\\s*" +		//2 brace
-			"(巻|[vV]ol\\.?)?\\s*" +	//3
+			"(第|巻|[vV]ol\\.?)?\\s*" +	//3
 			"([0-9０-９]+)\\s*" + 	//4 number
 			"巻?\\s*" + 				//
 			"(\\)|）)?\\s*" +		//5 brace
-			"([^0-9０-９]*)");				//6 postfix
+			"([^0-9０-９]*)");		//6 postfix
 //	private static Pattern pat = Pattern.compile("(.*)(\\（｜（)巻?([0-9]+|[０-９]+)巻?(\\)|）)");
-	private void parseTitle(){
+	public void parseTitle(){
 		String t = getTitle();
 		Log.d(TAG,"parse:" + t);
 		Matcher m = pat.matcher(t);
@@ -467,6 +489,15 @@ public class BookInfo {
 			}*/
 			Log.d(TAG, "match title ["+ baseTitle +"] + vol:" + volume + " post:" + titlePostFix);
 			
+		}
+		if(baseTitle == null ){
+			baseTitle = t;
+			volume = 1;
+			titlePostFix = null;
+		}
+		baseTitle = baseTitle.trim().replace("　", " ");
+		if( titlePostFix != null && titlePostFix.isEmpty() ){
+			titlePostFix = null;
 		}
 	}
 	
@@ -693,5 +724,25 @@ public class BookInfo {
 			}
 		}
 		return true;
+	}
+
+
+	public Bitmap getThumb() {
+		return thumb;
+	}
+
+
+	public void setThumb(Bitmap thumb) {
+		this.thumb = thumb;
+	}
+
+
+	public boolean isThumbRequested() {
+		return thumbRequested;
+	}
+
+
+	public void setThumbRequested(boolean thumbRequested) {
+		this.thumbRequested = thumbRequested;
 	}
 }

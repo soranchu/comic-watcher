@@ -9,12 +9,15 @@ import jp.tande.android.comicwatcher.api.BooksApi.SearchResultListener;
 import jp.tande.android.comicwatcher.api.data.BookInfo;
 import jp.tande.android.comicwatcher.api.data.BookSeries;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -39,6 +42,19 @@ public class AddItemActivity extends Activity {
         searchResultAdapter = new SearchResultAdapter(this);
         searchResult = (ListView) findViewById(R.id.list_search_result);
         searchResult.setAdapter(searchResultAdapter);
+        
+        searchResult.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				BookSeries bs = (BookSeries) searchResult.getItemAtPosition(arg2);
+				Log.d(TAG,"selected " + bs.getTitle());
+				Intent i = new Intent(AddItemActivity.this, DetailActivity.class);
+				i.putExtra("data", bs);//TODO
+				startActivity(i);
+			}
+        	
+        });
         
         autoCompleteAdapter = new AutoCompleteKeywordAdapter(this);
         comicTitleText = (AutoCompleteTextView) findViewById(R.id.text_title_search);
@@ -77,7 +93,11 @@ public class AddItemActivity extends Activity {
     }
 
     protected void execSearch(String string) {
-		// TODO Auto-generated method stub
+		
+    	InputMethodManager imm = (InputMethodManager)getSystemService(
+    	      Context.INPUT_METHOD_SERVICE);
+    	imm.hideSoftInputFromWindow( comicTitleText.getWindowToken(), 0);
+    	
 		BooksApi api = new BooksApi(new Handler());
 		searchResultAdapter.clear();
 		api.searchTitle(string, new SearchResultListener() {
@@ -85,7 +105,7 @@ public class AddItemActivity extends Activity {
 			@Override
 			public void onFinished(List<BookSeries> infos) {
 				// TODO Auto-generated method stub
-				Log.d(TAG, "result:"+ infos);
+				//Log.d(TAG, "result:"+ infos);
 				searchResultAdapter.clear();
 				for (BookSeries bs : infos) {
 					searchResultAdapter.add(bs);

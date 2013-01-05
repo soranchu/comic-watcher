@@ -121,6 +121,7 @@ public class BooksApi {
 							Log.d(TAG,"Invalid book: " + bi.getTitle() + " " + bi.getIsbn() + " " + bi.getBooksGenreId());
 							continue;
 						}
+						bi.parseTitle();
 						BookSeries se = null;
 						for (BookSeries bs : series) {
 							if(bs.match(bi)){
