@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- Push時 -->
+<!-- 		android:state_focused="true" -->
+<!-- 		android:state_enabled="true" -->
+
+	<item
+		android:state_pressed="true"
+		android:drawable="@drawable/shape_btn_reserve_pushed" />
 	<!-- 通常時 -->
 	<item
 		android:drawable="@drawable/shape_btn_reserve_normal" />
-	<!-- Push時 -->
-	<item
-		android:state_focused="true"
-		android:state_enabled="true"
-		android:state_pressed="true"
-		android:drawable="@drawable/shape_btn_reserve_pushed" />
 </selector>
