@@ -13,8 +13,11 @@
         <ImageView
             android:id="@+id/img_detail_comic_thumb"
             android:layout_width="96dp"
-            android:layout_height="128dp"
-            android:layout_gravity="left" />
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:paddingBottom="12dp"
+            android:paddingLeft="12dp"
+            android:paddingTop="12dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -26,7 +29,7 @@
                 android:id="@+id/txt_detail_comicTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
+                android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="12dp"
                 android:text="宇宙兄弟"
@@ -38,7 +41,7 @@
                 android:id="@+id/txt_detail_auther"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
+                android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="4dp"
                 android:text="小山 宙哉"
@@ -49,7 +52,7 @@
                 android:id="@+id/txt_detail_publisher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
+                android:paddingLeft="12dp"
                 android:paddingRight="12dp"
                 android:paddingTop="4dp"
                 android:text="モーニングKC"
@@ -61,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="12dp"
                 android:paddingRight="12dp"
-                android:paddingTop="8dp" >
+                android:paddingTop="12dp" >
 
                 <Button
                     android:id="@+id/btn_reserve"
@@ -69,14 +72,17 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:background="@drawable/selector_btn_reserve"
-                    android:paddingBottom="4dp"
-                    android:paddingLeft="12dp"
-                    android:paddingRight="12dp"
-                    android:paddingTop="4dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="8dp"
                     android:text="新刊予約"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
+
             </RelativeLayout>
 
         </LinearLayout>

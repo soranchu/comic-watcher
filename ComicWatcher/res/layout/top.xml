@@ -6,7 +6,7 @@
     android:background="@color/gray_dark" >
 
     <ListView
-        android:id="@+id/listView1"
+        android:id="@+id/list_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
