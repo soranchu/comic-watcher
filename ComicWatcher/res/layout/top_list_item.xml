@@ -30,7 +30,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:paddingBottom="8dp"
-                android:paddingLeft="12dp"
+                android:paddingLeft="8dp"
                 android:paddingTop="8dp"
                 android:text="宇宙兄弟"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingBottom="8dp"
-                android:paddingLeft="12dp"
+                android:paddingLeft="8dp"
                 android:text="@string/txt_series_num"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/gray_normal" />
