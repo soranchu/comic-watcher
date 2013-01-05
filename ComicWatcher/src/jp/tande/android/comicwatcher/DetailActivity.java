@@ -105,4 +105,9 @@ public class DetailActivity extends Activity {
     	return true;
     }*/
 
+    @Override
+    protected void onDestroy() {
+    	loader.shutdown();
+    	super.onDestroy();
+    }
 }

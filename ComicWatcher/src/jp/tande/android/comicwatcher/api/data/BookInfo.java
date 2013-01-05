@@ -467,12 +467,14 @@ public class BookInfo implements Serializable{
 	private int volume;
 	private static Pattern pat = Pattern.compile(
 			"(.*?)\\s*" +			//1 base title
-			"(\\(|（)?\\s*" +		//2 brace
-			"(第|巻|[vV]ol\\.?)?\\s*" +	//3
-			"([0-9０-９]+)\\s*" + 	//4 number
+			"(?:\\(|（)?\\s*" +		//brace
+			"(?:第|巻|[vV]ol(?:\\.|．)?)?\\s*" +	//
+			"([0-9０-９]+)\\s*" + 	//2 number
 			"巻?\\s*" + 				//
-			"(\\)|）)?\\s*" +		//5 brace
-			"([^0-9０-９]*)");		//6 postfix
+			"(?:\\)|）)?\\s*" +		//brace
+			"([^0-9０-９]*)");		//3 postfix
+	//01-05 20:23:16.570: D/BookInfo(4716): parse:イエスタデイをうたって vol．8
+
 //	private static Pattern pat = Pattern.compile("(.*)(\\（｜（)巻?([0-9]+|[０-９]+)巻?(\\)|）)");
 	public void parseTitle(){
 		String t = getTitle();
@@ -480,8 +482,8 @@ public class BookInfo implements Serializable{
 		Matcher m = pat.matcher(t);
 		if( m.matches() ){
 			baseTitle = m.group(1);
-			String num = m.group(4);
-			titlePostFix = m.group(6);
+			String num = m.group(2);
+			titlePostFix = m.group(3);
 			volume = Integer.parseInt(num);
 			/*
 			for (int i = 0; i<=m.groupCount() ; i++) {

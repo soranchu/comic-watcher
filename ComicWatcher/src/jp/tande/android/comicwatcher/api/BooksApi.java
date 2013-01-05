@@ -47,7 +47,7 @@ public class BooksApi {
 	private static final String VALUE_HIDE_OUT_OF_STOCK = "0";
 	private static final String VALUE_SHOW_OUT_OF_STOCK = "1";
 	private static final String PARAM_GENRE = "booksGenreId";
-	private static final String VALUE_GENRE_COMIC = "001001";
+	private static final String VALUE_GENRE_COMIC = "001001";//TODO: fix genre to 001001
 	private static final String PARAM_SIZE = "size";
 	private static final String VALUE_SIZE_COMIC = "9";
 	private static final String PARAM_SORT = "sort";
@@ -113,7 +113,7 @@ public class BooksApi {
 						Log.d(TAG,"load " + res.getLast() + " of " + res.getCount());
 					}
 					paging++;
-				}while( paging <= 3 && res != null && res.getPageCount() > res.getPage() );
+				}while( paging <= 5 && res != null && res.getPageCount() > res.getPage() );
 				final List<BookSeries> series = new ArrayList<BookSeries>();
 				if( books != null ){
 					for (BookInfo bi : books) {

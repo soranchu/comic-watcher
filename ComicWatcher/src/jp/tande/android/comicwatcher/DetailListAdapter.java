@@ -1,22 +1,47 @@
 package jp.tande.android.comicwatcher;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.api.data.BookInfo;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DetailListAdapter extends ArrayAdapter<BookInfo> {
+	private static final String TAG ="DetailListAdapter";
 	private ImageLoader loader;
+	
+	private Map<String, Boolean> ownedFlags = new HashMap<String, Boolean>();
 	
 	public DetailListAdapter(Context context, ImageLoader loader) {
 		super(context, R.layout.detail_list_item);
 		this.loader = loader;
+	}
+	
+	private boolean isItemOwned(BookInfo bi){
+		Boolean b = ownedFlags.get(bi.getIsbn());
+		if( b != null ){
+			Log.d(TAG, "read item checked " + bi.getIsbn() + " flag:"+b);
+			return b;
+		}
+		Log.d(TAG, "read item checked " + bi.getIsbn() + " not found");
+		return false;
+	}
+	
+	private void setItemOwned(BookInfo bi, boolean owned){
+		ownedFlags.put(bi.getIsbn(), owned);
+		Log.d(TAG, "item checked " + bi.getIsbn() + " flag:"+owned);
+		Log.d(TAG, "items: "+ ownedFlags);
 	}
 	
 	@Override
@@ -55,6 +80,23 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 				convertView.requestLayout();
 			}
 		}
+		boolean owned = isItemOwned(bi);
+		chkOwn.setOnCheckedChangeListener(null);
+		chkReserved.setOnCheckedChangeListener(null);
+		chkOwn.setChecked(owned);
+		chkReserved.setChecked(owned);
+		chkOwn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				setItemOwned(bi, isChecked);
+			}
+		});
+		chkReserved.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				setItemOwned(bi, isChecked);
+			}
+		});
 		if( bi.getThumb() != null && ! bi.getThumb().isRecycled() ){
 			imgThumb.setImageBitmap(bi.getThumb());
 		}else if( !bi.isThumbRequested() ){
@@ -65,7 +107,7 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 				@Override
 				public void onLoadFinished(Bitmap bmp) {
 					bi.setThumb(bmp);
-					imgThumb.setImageBitmap(bmp);
+					//imgThumb.setImageBitmap(bmp);
 					notifyDataSetChanged();
 				}
 			});
