@@ -6,11 +6,12 @@ import jp.tande.android.comicwatcher.api.data.BookSeries;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -42,6 +43,18 @@ public class DetailActivity extends Activity {
         btnReserve= (Button) findViewById(R.id.btn_reserve);
         
         detailListAdapter = new DetailListAdapter(this, loader);
+        
+        listDetail.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				BookInfo bi = (BookInfo) listDetail.getItemAtPosition(arg2);
+				String url = bi.getItemUrl();
+				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url) );
+				startActivity(i);
+			}
+
+        });
         listDetail.setAdapter(detailListAdapter);
         
         Intent i = getIntent();

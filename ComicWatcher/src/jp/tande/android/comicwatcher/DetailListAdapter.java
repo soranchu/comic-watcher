@@ -58,6 +58,7 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 		if( bi.getThumb() != null && ! bi.getThumb().isRecycled() ){
 			imgThumb.setImageBitmap(bi.getThumb());
 		}else if( !bi.isThumbRequested() ){
+			imgThumb.setImageBitmap(null);
 			bi.setThumbRequested(true);
 			loader.queue(bi.getLargeImageUrl(), new ImageLoader.ImageLoaderListener() {
 				
