@@ -1,4 +1,4 @@
-package jp.tande.android.comicwatcher.api.data;
+package jp.tande.android.comicwatcher.db;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,6 +7,9 @@ import java.util.List;
 public class BookSeries implements Serializable{
 	private static final long serialVersionUID = 7893319474968721635L;
 
+	private boolean poplulated;
+	private long seriesId;
+	
 	@Override
 	public String toString() {
 		return "BookSeries [books=" + books + ", latestVolume=" + latestVolume
@@ -20,6 +23,15 @@ public class BookSeries implements Serializable{
 		author = bi.getAuthor();
 		booksGenreId = bi.getBooksGenreId();
 		addBook(bi);
+		poplulated = true;
+	}
+	
+	/*package*/ BookSeries(long seriesId, String title, String publisher, String author){
+		this.seriesId = seriesId;
+		this.title = title;
+		this.publisher = publisher;
+		this.author = author;
+		poplulated = false;
 	}
 	
 	public List<BookInfo> getBooks() {
@@ -110,6 +122,22 @@ public class BookSeries implements Serializable{
 
 	public String getBooksGenreId() {
 		return booksGenreId;
+	}
+
+	public boolean isPoplulated() {
+		return poplulated;
+	}
+
+	public long getSeriesId() {
+		return seriesId;
+	}
+
+	void setSeriesId(long seriesId) {
+		this.seriesId = seriesId;
+	}
+
+	void setPoplulated(boolean poplulated) {
+		this.poplulated = poplulated;
 	}
 	
 }

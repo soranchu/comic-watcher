@@ -1,10 +1,14 @@
-package jp.tande.android.comicwatcher;
+package adapters;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import jp.tande.android.comicwatcher.R;
+import jp.tande.android.comicwatcher.R.id;
+import jp.tande.android.comicwatcher.R.layout;
+import jp.tande.android.comicwatcher.R.string;
 import jp.tande.android.comicwatcher.api.ImageLoader;
-import jp.tande.android.comicwatcher.api.data.BookInfo;
+import jp.tande.android.comicwatcher.db.BookInfo;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;

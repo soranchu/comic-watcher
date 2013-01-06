@@ -1,0 +1,211 @@
+package jp.tande.android.comicwatcher.db;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+public class DatabaseManager {
+	private static final String TAG = "DatabaseManager";
+
+	public static final String TABLE_FOLLOWS = "follows";
+	public static final String COL_ID = "_id";
+	public static final String COL_TITLE = "title";
+	public static final String COL_AUTHOR = "author";
+	public static final String COL_PUBLISHER = "publisher";
+	public static final String COL_LAST_UPDATE = "last_update";
+	public static final String COL_VOLUMES = "volumes";
+
+	public static final String TABLE_BOOKS = "books";
+	//title
+	public static final String COL_TITLE_POST_FIX = "title_post_fix";
+	public static final String COL_SUB_TITLE = "sub_title";
+	public static final String COL_SERIES = "series";
+	//author
+	//publisher
+	public static final String COL_ISBN = "isbn";
+	public static final String COL_SALES_DATE = "sales_date";
+	public static final String COL_URL = "url";
+	public static final String COL_AFF_URL = "affiliate_url";
+	public static final String COL_IMAGE_URL = "image_url";
+	public static final String COL_AVAILABILITY = "availability";
+	//last_update
+	public static final String COL_VOLUME = "volume";
+	public static final String COL_FLAG_HIDE = "hide";
+	public static final String COL_FLAG_OWNED = "owned";
+
+	public static final String TABLE_FOLLOWS_BOOKS = "follows_books";
+	public static final String COL_FOLLOWS_ID = "follows_id";
+	public static final String COL_BOOKS_ID = "books_id";
+
+	private class DatabaseHelper extends SQLiteOpenHelper {
+		private static final String TAG = "DatabaseHelper";
+		
+		private static final String DB_NAME = "database.db";
+		private static final int VERSION = 3;
+
+		
+		public DatabaseHelper(Context context) {
+			super(context, DB_NAME, null, VERSION);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			Log.d(TAG, "dropping tables...");
+			db.execSQL("drop table if exists " + TABLE_FOLLOWS );
+			db.execSQL("drop table if exists " + TABLE_BOOKS );
+			db.execSQL("drop table if exists " + TABLE_FOLLOWS_BOOKS );
+			
+			Log.d(TAG, "creating tables...");
+			db.execSQL(
+					"create table " + TABLE_FOLLOWS +" ("
+					+ COL_ID + " integer primary key autoincrement not null, "
+					+ COL_TITLE + " text not null, "
+					+ COL_AUTHOR + " text, "
+					+ COL_PUBLISHER + " text, "
+					+ COL_LAST_UPDATE + " long not null, "
+					+ COL_VOLUMES + " integer )" );
+			db.execSQL(
+					"create table " + TABLE_BOOKS +" ("	
+					+ COL_ID + " integer primary key autoincrement not null, "
+					+ COL_TITLE + " text not null, "
+					+ COL_SUB_TITLE + " text, "
+					+ COL_SERIES + " text, "
+					+ COL_AUTHOR + " text, "
+					+ COL_PUBLISHER + " text, "
+					+ COL_ISBN + " integer not null, "
+					+ COL_SALES_DATE + " text, "
+					+ COL_URL + " text, "
+					+ COL_AFF_URL + " text, "
+					+ COL_AVAILABILITY + " integer default 0, "
+					+ COL_IMAGE_URL + " text, "
+					+ COL_FLAG_HIDE + " integer default 0, "
+					+ COL_FLAG_OWNED + " integer default 0, "
+					+ COL_LAST_UPDATE + " long not null, "
+					+ COL_VOLUME + " integer )" );
+			db.execSQL(
+					"create table " + TABLE_FOLLOWS_BOOKS +" ("	
+					+ COL_ID + " integer primary key autoincrement not null, "
+					+ COL_FOLLOWS_ID + " integer not null, "
+					+ COL_BOOKS_ID + " integer not null )");
+					
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			Log.d(TAG, "upgrading tables from " + oldVersion + " to " + newVersion);
+			
+			onCreate(db);
+
+		}
+
+	}
+
+	
+	private DatabaseHelper helper;
+	private Context context;
+	
+	private static DatabaseManager instance = null;
+	public static DatabaseManager getInstance(){
+		return instance;
+	}
+	public static void initializeInstance(Context context){
+		if( instance == null ){
+			instance = new DatabaseManager(context);
+		}else{
+			Log.w(TAG, "DatabaseManager already initialized!");
+		}
+	}
+	
+	private DatabaseManager(Context context){
+		this.context = context;
+		this.helper = new DatabaseHelper(context);
+	}
+	
+	public long addBookSeries(BookSeries bs){
+		SQLiteDatabase db = helper.getWritableDatabase();
+		ContentValues v = new ContentValues();
+		v.put(COL_TITLE, bs.getTitle());
+		v.put(COL_AUTHOR, bs.getAuthor());
+		v.put(COL_PUBLISHER, bs.getPublisher());
+		v.put(COL_LAST_UPDATE, new Date().getTime());
+		v.put(COL_VOLUMES, bs.getTitle());
+		db.beginTransaction();
+		long ret = 0;
+		try{
+			Log.d(TAG,"inserting into " +TABLE_FOLLOWS + " values:" + v.toString());
+			ret = db.insert(TABLE_FOLLOWS, null, v);
+			if( bs.getBooks() != null ){
+				for (BookInfo bi : bs.getBooks()) {
+					addBookAsSeries(db, bi,ret);
+				}
+			}
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+		return ret;
+	}
+
+	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId) {
+		ContentValues v = new ContentValues();
+		v.put(COL_TITLE, bi.getTitle());
+		v.put(COL_SUB_TITLE, bi.getSubTitle());
+		v.put(COL_SERIES, bi.getSeriesName());
+		v.put(COL_AUTHOR, bi.getAuthor());
+		v.put(COL_PUBLISHER, bi.getPublisherName());
+		v.put(COL_ISBN, bi.getIsbn());
+		v.put(COL_SALES_DATE, bi.getSalesDate());
+		v.put(COL_URL, bi.getItemUrl());
+		v.put(COL_AFF_URL, bi.getAffiliateUrl());
+		v.put(COL_IMAGE_URL, bi.getMediumImageUrl());
+		v.put(COL_AVAILABILITY, bi.getAvailability());
+		v.put(COL_FLAG_HIDE, bi.isHidden());
+		v.put(COL_FLAG_OWNED, bi.isOwned());
+		v.put(COL_LAST_UPDATE, new Date().getTime());
+		v.put(COL_VOLUME, bi.getVolume());
+		Log.d(TAG,"inserting into " +TABLE_BOOKS + " values:" + v.toString());
+		long booksId = db.insert(TABLE_BOOKS, null, v);
+		
+		v.clear();
+		v.put(COL_FOLLOWS_ID, seriesId);
+		v.put(COL_BOOKS_ID, booksId);
+		Log.d(TAG,"inserting into " +TABLE_FOLLOWS_BOOKS + " values:" + v.toString());
+		db.insert(TABLE_FOLLOWS_BOOKS, null, v);
+
+	}
+	
+	public List<BookSeries> querySeries(){
+		List<BookSeries> series = new ArrayList<BookSeries>();
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		try{
+			c = db.query(TABLE_FOLLOWS, /*cols*/null, 
+					/*selection*/null, /*selectionArgs*/null, 
+					/*groupBy*/null, /*having*/null, /*orderBy*/null);
+			//c.moveToFirst();
+			while( c.moveToNext() ){
+				BookSeries bs = new BookSeries(
+						c.getLong(c.getColumnIndex(COL_ID)),
+						c.getString(c.getColumnIndex(COL_TITLE)),
+						c.getString(c.getColumnIndex(COL_PUBLISHER)),
+						c.getString(c.getColumnIndex(COL_AUTHOR)) );
+				series.add(bs);
+			}
+		}finally{
+			if( c!= null ){
+				c.close();
+			}
+		}
+		return series;
+	}
+	
+}

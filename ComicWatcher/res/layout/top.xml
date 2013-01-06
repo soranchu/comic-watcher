@@ -7,7 +7,7 @@
     android:background="@color/gray_light" >
 
     <ListView
-        android:id="@+id/listView1"
+        android:id="@+id/list_follows"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:listitem="@layout/top_list_item" >

@@ -1,4 +1,4 @@
-package jp.tande.android.comicwatcher.api.data;
+package jp.tande.android.comicwatcher.db;
 
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -12,6 +12,10 @@ public class BookInfo implements Serializable{
 
 	private transient Bitmap thumb;
 	private transient boolean thumbRequested = false;
+	
+	private boolean owned = false;
+	private boolean hidden = false;
+	private long bookId;
 	
 	public String getBaseTitle() {
 		return baseTitle;
@@ -750,5 +754,35 @@ public class BookInfo implements Serializable{
 	
 	public boolean isOnSale(){
 		return ! "5".equals(getAvailability());
+	}
+
+
+	public boolean isOwned() {
+		return owned;
+	}
+
+
+	public void setOwned(boolean owned) {
+		this.owned = owned;
+	}
+
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+
+
+	public long getBookId() {
+		return bookId;
+	}
+
+
+	void setBookId(long bookId) {
+		this.bookId = bookId;
 	}
 }

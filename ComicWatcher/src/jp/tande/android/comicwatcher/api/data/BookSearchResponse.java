@@ -2,6 +2,8 @@ package jp.tande.android.comicwatcher.api.data;
 
 import java.util.List;
 
+import jp.tande.android.comicwatcher.db.BookInfo;
+
 public class BookSearchResponse {
 	@Override
 	public int hashCode() {

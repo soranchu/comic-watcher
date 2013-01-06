@@ -6,8 +6,10 @@ import java.util.List;
 
 import jp.tande.android.comicwatcher.api.BooksApi;
 import jp.tande.android.comicwatcher.api.BooksApi.SearchResultListener;
-import jp.tande.android.comicwatcher.api.data.BookInfo;
-import jp.tande.android.comicwatcher.api.data.BookSeries;
+import jp.tande.android.comicwatcher.db.BookInfo;
+import jp.tande.android.comicwatcher.db.BookSeries;
+import adapters.AutoCompleteKeywordAdapter;
+import adapters.BookSeriesAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +35,7 @@ public class AddItemActivity extends Activity {
 	private AutoCompleteTextView comicTitleText;
 	private AutoCompleteKeywordAdapter autoCompleteAdapter;
 	private ListView searchResult;
-	private SearchResultAdapter searchResultAdapter;
+	private BookSeriesAdapter searchResultAdapter;
 	LinearLayout topBorder;
 	LinearLayout bottomBorder;
 	
@@ -42,7 +44,7 @@ public class AddItemActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_item);
         
-        searchResultAdapter = new SearchResultAdapter(this);
+        searchResultAdapter = new BookSeriesAdapter(this);
         searchResult = (ListView) findViewById(R.id.list_search_result);
         searchResult.setAdapter(searchResultAdapter);
 

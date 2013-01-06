@@ -1,8 +1,10 @@
 package jp.tande.android.comicwatcher;
 
 import jp.tande.android.comicwatcher.api.ImageLoader;
-import jp.tande.android.comicwatcher.api.data.BookInfo;
-import jp.tande.android.comicwatcher.api.data.BookSeries;
+import jp.tande.android.comicwatcher.db.BookInfo;
+import jp.tande.android.comicwatcher.db.BookSeries;
+import jp.tande.android.comicwatcher.db.DatabaseManager;
+import adapters.DetailListAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -135,10 +137,11 @@ public class DetailActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	Log.d(TAG, "menu item selected item:" + item.getItemId() );
-    	
+    	DatabaseManager db = DatabaseManager.getInstance();
     	int id = item.getItemId();
     	switch(id){
     	case R.id.menu_follow:
+    		db.addBookSeries(bookSeries);
     		setResult(RESULT_OK);
     		finish();
     		break;

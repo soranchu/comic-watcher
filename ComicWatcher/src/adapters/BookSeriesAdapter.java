@@ -1,6 +1,9 @@
-package jp.tande.android.comicwatcher;
+package adapters;
 
-import jp.tande.android.comicwatcher.api.data.BookSeries;
+import jp.tande.android.comicwatcher.R;
+import jp.tande.android.comicwatcher.R.id;
+import jp.tande.android.comicwatcher.R.layout;
+import jp.tande.android.comicwatcher.db.BookSeries;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class SearchResultAdapter extends ArrayAdapter<BookSeries> {
+public class BookSeriesAdapter extends ArrayAdapter<BookSeries> {
 
-	public SearchResultAdapter(Context ctx){
+	public BookSeriesAdapter(Context ctx){
 		super(ctx, R.layout.add_list_item);
 	}
 	

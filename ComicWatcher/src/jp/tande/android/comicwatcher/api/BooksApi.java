@@ -16,9 +16,9 @@ import net.arnx.jsonic.JSON;
 import net.arnx.jsonic.JSONException;
 
 import jp.tande.android.comicwatcher.api.credentials.Credential;
-import jp.tande.android.comicwatcher.api.data.BookInfo;
 import jp.tande.android.comicwatcher.api.data.BookSearchResponse;
-import jp.tande.android.comicwatcher.api.data.BookSeries;
+import jp.tande.android.comicwatcher.db.BookInfo;
+import jp.tande.android.comicwatcher.db.BookSeries;
 
 import android.os.Handler;
 import android.util.Log;
