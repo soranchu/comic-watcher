@@ -23,7 +23,9 @@
         android:id="@+id/list_search_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/gray_light"
         tools:listitem="@layout/add_list_item" >
+
     </ListView>
 
 </LinearLayout>
