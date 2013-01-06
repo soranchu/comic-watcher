@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
@@ -33,6 +34,8 @@ public class AddItemActivity extends Activity {
 	private AutoCompleteKeywordAdapter autoCompleteAdapter;
 	private ListView searchResult;
 	private SearchResultAdapter searchResultAdapter;
+	LinearLayout topBorder;
+	LinearLayout bottomBorder;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,11 @@ public class AddItemActivity extends Activity {
         searchResultAdapter = new SearchResultAdapter(this);
         searchResult = (ListView) findViewById(R.id.list_search_result);
         searchResult.setAdapter(searchResultAdapter);
-        
+
+        topBorder = (LinearLayout) findViewById(R.id.list_border_top);
+        bottomBorder = (LinearLayout) findViewById(R.id.list_border_bottom);
+        topBorder.setVisibility(View.INVISIBLE);
+        bottomBorder.setVisibility(View.INVISIBLE);
         searchResult.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
@@ -93,13 +100,18 @@ public class AddItemActivity extends Activity {
     }
 
     protected void execSearch(String string) {
+		if( string == null || string.trim().isEmpty() )return;
 		
     	InputMethodManager imm = (InputMethodManager)getSystemService(
     	      Context.INPUT_METHOD_SERVICE);
     	imm.hideSoftInputFromWindow( comicTitleText.getWindowToken(), 0);
     	
 		BooksApi api = new BooksApi(new Handler());
+
 		searchResultAdapter.clear();
+        topBorder.setVisibility(View.INVISIBLE);
+        bottomBorder.setVisibility(View.INVISIBLE);
+
 		api.searchTitle(string, new SearchResultListener() {
 			
 			@Override
@@ -109,6 +121,13 @@ public class AddItemActivity extends Activity {
 				searchResultAdapter.clear();
 				for (BookSeries bs : infos) {
 					searchResultAdapter.add(bs);
+				}
+				if( searchResultAdapter.getCount() > 0 ){
+			        topBorder.setVisibility(View.VISIBLE);
+			        bottomBorder.setVisibility(View.VISIBLE);
+				}else{
+			        topBorder.setVisibility(View.INVISIBLE);
+			        bottomBorder.setVisibility(View.INVISIBLE);
 				}
 			}
 			

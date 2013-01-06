@@ -131,9 +131,10 @@ public class DetailActivity extends Activity {
         return true;
     }
     
+    
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-    	Log.d(TAG, "menu item selected fid:"+featureId + " item:" + item.getItemId() );
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.d(TAG, "menu item selected item:" + item.getItemId() );
     	
     	int id = item.getItemId();
     	switch(id){
