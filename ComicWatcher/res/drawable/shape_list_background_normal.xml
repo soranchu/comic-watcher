@@ -3,9 +3,9 @@
 	<item>
 		<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
 		    <gradient
-		        android:startColor="@color/listbg_top"
-		        android:centerColor="@color/listbg_top"
-		        android:endColor="@color/listbg_bottom"
+		        android:startColor="@color/listbg_top_normal"
+		        android:centerColor="@color/listbg_top_normal"
+		        android:endColor="@color/listbg_bottom_normal"
 		        android:angle="270" />
 		</shape>
 		<item>

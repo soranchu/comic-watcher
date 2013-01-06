@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/gray_dark"
+    android:background="@color/white"
     android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="@color/gray_dark" >
 
         <ImageView
             android:id="@+id/img_detail_comic_thumb"
@@ -95,5 +96,13 @@
         tools:listitem="@layout/detail_list_item" >
 
     </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_border_width"
+        android:background="@color/list_border_color"
+        android:orientation="vertical" >
+
+    </LinearLayout>
 
 </LinearLayout>

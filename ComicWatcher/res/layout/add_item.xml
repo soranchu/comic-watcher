@@ -19,6 +19,15 @@
         <requestFocus />
     </AutoCompleteTextView>
 
+    <LinearLayout
+        android:id="@+id/list_border_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_border_width"
+        android:background="@color/list_border_color"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
     <ListView
         android:id="@+id/list_search_result"
         android:layout_width="match_parent"
@@ -27,5 +36,14 @@
         tools:listitem="@layout/add_list_item" >
 
     </ListView>
+
+    <LinearLayout
+        android:id="@+id/list_border_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_border_width"
+        android:background="@color/list_border_color"
+        android:orientation="vertical" >
+
+    </LinearLayout>
 
 </LinearLayout>
