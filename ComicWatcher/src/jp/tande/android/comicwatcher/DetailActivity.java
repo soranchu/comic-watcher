@@ -9,8 +9,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -43,7 +48,7 @@ public class DetailActivity extends Activity {
         btnReserve= (Button) findViewById(R.id.btn_reserve);
         
         detailListAdapter = new DetailListAdapter(this, loader);
-        
+        /*
         listDetail.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
@@ -53,9 +58,9 @@ public class DetailActivity extends Activity {
 				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url) );
 				startActivity(i);
 			}
-
-        });
+        });*/
         listDetail.setAdapter(detailListAdapter);
+        registerForContextMenu(listDetail);
         
         Intent i = getIntent();
         bookSeries = (BookSeries) i.getExtras().getSerializable("data");
@@ -74,7 +79,7 @@ public class DetailActivity extends Activity {
 				});
         	}
         	if( bookSeries.getLatest().isOnSale() ){
-        		btnReserve.setVisibility(View.GONE);
+        		btnReserve.setVisibility(View.INVISIBLE);
         	}else{
         		btnReserve.setText(String.format(getResources().getText(R.string.txt_reserve).toString(),bookSeries.getLatestVolume()));
         	}
@@ -85,6 +90,36 @@ public class DetailActivity extends Activity {
 		}
         
     }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    	//super.onCreateContextMenu(menu, v, menuInfo);
+    	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+    	BookInfo bi = detailListAdapter.getItem(info.position);
+    	menu.setHeaderTitle(bi.getTitle());
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.detail_list_item_context, menu);
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+    	BookInfo bi = detailListAdapter.getItem(info.position);
+    	switch( item.getItemId() ){
+    		case R.id.menu_item_purchase:
+    			startPurchasePageBrowseActivity(bi);
+    			return true;
+    		case R.id.menu_remove:
+    			break;
+    	}
+    	return false;
+    }
+    
+    private void startPurchasePageBrowseActivity(BookInfo bi){
+		String url = bi.getItemUrl();
+		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url) );
+		startActivity(i);
+    }
+    
     /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

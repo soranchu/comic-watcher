@@ -8,6 +8,8 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_add">Add</string>
+    <string name="menu_remove">リストから削除</string>
+    <string name="menu_purchase">購入ページへ</string>
     <string name="search_title">タイトルを入力してください</string>
     <string name="txt_series_num">%d巻</string>
     <string name="txt_scheduled_date">%s 発売予定</string>

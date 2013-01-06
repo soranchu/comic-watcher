@@ -102,7 +102,7 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 		}else if( !bi.isThumbRequested() ){
 			imgThumb.setImageBitmap(null);
 			bi.setThumbRequested(true);
-			loader.queue(bi.getLargeImageUrl(), new ImageLoader.ImageLoaderListener() {
+			loader.queue(bi.getSmallImageUrl(), new ImageLoader.ImageLoaderListener() {
 				
 				@Override
 				public void onLoadFinished(Bitmap bmp) {
