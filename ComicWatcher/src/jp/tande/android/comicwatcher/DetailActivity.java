@@ -9,7 +9,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +62,7 @@ public class DetailActivity extends Activity {
 			}
         });*/
         listDetail.setAdapter(detailListAdapter);
+        //listDetail.setDrawSelectorOnTop(true);
         registerForContextMenu(listDetail);
         
         Intent i = getIntent();
@@ -120,11 +123,11 @@ public class DetailActivity extends Activity {
 		startActivity(i);
     }
     
-    /*
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.top_list, menu);
+        getMenuInflater().inflate(R.menu.detail_list, menu);
         return true;
     }
     
@@ -134,16 +137,17 @@ public class DetailActivity extends Activity {
     	
     	int id = item.getItemId();
     	switch(id){
-    	case R.id.menu_add:
-    		startActivity(new Intent(this,AddItemActivity.class));
+    	case R.id.menu_follow:
+    		setResult(RESULT_OK);
+    		finish();
     		break;
-    	case R.id.menu_refresh:
-    		break;
-    	case R.id.menu_settings:
+    	case R.id.menu_unfollow:
+    		setResult(RESULT_OK);
+    		finish();
     		break;
     	}
     	return true;
-    }*/
+    }
 
     @Override
     protected void onDestroy() {
