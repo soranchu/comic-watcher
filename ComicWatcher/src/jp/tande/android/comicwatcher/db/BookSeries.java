@@ -26,11 +26,13 @@ public class BookSeries implements Serializable{
 		poplulated = true;
 	}
 	
-	/*package*/ BookSeries(long seriesId, String title, String publisher, String author){
+	/*package*/ BookSeries(long seriesId, String title, String publisher, String author, int ownedCount, int totalNotIgnored){
 		this.seriesId = seriesId;
 		this.title = title;
 		this.publisher = publisher;
 		this.author = author;
+		this.ownedCount = ownedCount;
+		this.totalNotIgnored = totalNotIgnored;
 		poplulated = false;
 	}
 	
@@ -44,6 +46,33 @@ public class BookSeries implements Serializable{
 			latest = bi;
 			latestVolume = bi.getVolume();
 		}
+		if( ! isIgnored(bi) ){
+			totalNotIgnored++;
+			if( bi.isOwned() ){
+				ownedCount ++;
+			}
+		}
+	}
+	
+	public void addIgnored(String isbn){
+		ignoredBookIsbns.add(isbn);
+		for (BookInfo bi : books) {
+			if( isbn.equalsIgnoreCase(bi.getIsbn()) ){
+				totalNotIgnored--;
+				if( bi.isOwned() ){
+					ownedCount--;
+				}
+			}
+		}
+	}
+	
+	private boolean isIgnored(BookInfo bi){
+		for (String isbn : ignoredBookIsbns) {
+			if( isbn.equalsIgnoreCase(bi.getIsbn())){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public int getLatestVolume() {
@@ -108,6 +137,9 @@ public class BookSeries implements Serializable{
 	
 	
 	private List<BookInfo> books = new ArrayList<BookInfo>();
+	private List<String> ignoredBookIsbns = new ArrayList<String>();
+	private int ownedCount = 0;
+	private int totalNotIgnored = 0;
 	private BookInfo latest;
 	private int latestVolume =0;
 	
@@ -138,6 +170,22 @@ public class BookSeries implements Serializable{
 
 	void setPoplulated(boolean poplulated) {
 		this.poplulated = poplulated;
+	}
+
+	public int getOwnedCount() {
+		return ownedCount;
+	}
+	
+	public int getTotalCount(){
+		return totalNotIgnored;
+	}
+
+	public void setOwnedCount(int owned) {
+		this.ownedCount = owned;
+	}
+
+	public List<String> getIgnoredBookIsbns() {
+		return ignoredBookIsbns;
 	}
 	
 }

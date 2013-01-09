@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 public class DatabaseManager {
@@ -21,6 +22,8 @@ public class DatabaseManager {
 	public static final String COL_PUBLISHER = "publisher";
 	public static final String COL_LAST_UPDATE = "last_update";
 	public static final String COL_VOLUMES = "volumes";
+	public static final String COL_OWNED_COUNT = "owned_count";
+	public static final String COL_TOTAL_NOT_IGNORED_COUNT = "total_count";
 
 	public static final String TABLE_BOOKS = "books";
 	//title
@@ -48,7 +51,7 @@ public class DatabaseManager {
 		private static final String TAG = "DatabaseHelper";
 		
 		private static final String DB_NAME = "database.db";
-		private static final int VERSION = 3;
+		private static final int VERSION = 4;
 
 		
 		public DatabaseHelper(Context context) {
@@ -58,11 +61,6 @@ public class DatabaseManager {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			Log.d(TAG, "dropping tables...");
-			db.execSQL("drop table if exists " + TABLE_FOLLOWS );
-			db.execSQL("drop table if exists " + TABLE_BOOKS );
-			db.execSQL("drop table if exists " + TABLE_FOLLOWS_BOOKS );
-			
 			Log.d(TAG, "creating tables...");
 			db.execSQL(
 					"create table " + TABLE_FOLLOWS +" ("
@@ -71,7 +69,9 @@ public class DatabaseManager {
 					+ COL_AUTHOR + " text, "
 					+ COL_PUBLISHER + " text, "
 					+ COL_LAST_UPDATE + " long not null, "
-					+ COL_VOLUMES + " integer )" );
+					+ COL_VOLUMES + " integer,"
+					+ COL_OWNED_COUNT + " integer default 0," 
+					+ COL_TOTAL_NOT_IGNORED_COUNT + " integer default 0)" );
 			db.execSQL(
 					"create table " + TABLE_BOOKS +" ("	
 					+ COL_ID + " integer primary key autoincrement not null, "
@@ -101,6 +101,11 @@ public class DatabaseManager {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.d(TAG, "upgrading tables from " + oldVersion + " to " + newVersion);
+			
+			Log.d(TAG, "dropping tables...");
+			db.execSQL("drop table if exists " + TABLE_FOLLOWS );
+			db.execSQL("drop table if exists " + TABLE_BOOKS );
+			db.execSQL("drop table if exists " + TABLE_FOLLOWS_BOOKS );
 			
 			onCreate(db);
 
@@ -136,7 +141,9 @@ public class DatabaseManager {
 		v.put(COL_AUTHOR, bs.getAuthor());
 		v.put(COL_PUBLISHER, bs.getPublisher());
 		v.put(COL_LAST_UPDATE, new Date().getTime());
-		v.put(COL_VOLUMES, bs.getTitle());
+		v.put(COL_VOLUMES, bs.getBooks().size());
+		v.put(COL_OWNED_COUNT, bs.getOwnedCount());
+		v.put(COL_TOTAL_NOT_IGNORED_COUNT, bs.getTotalCount());
 		db.beginTransaction();
 		long ret = 0;
 		try{
@@ -151,7 +158,13 @@ public class DatabaseManager {
 		}finally{
 			db.endTransaction();
 		}
+		bs.setSeriesId(ret);
 		return ret;
+	}
+	
+	public void removeBookSeries(long seriesId){
+		SQLiteDatabase db = helper.getWritableDatabase();
+		db.delete(TABLE_FOLLOWS, BaseColumns._ID + "=?", new String[]{ String.valueOf(seriesId) });
 	}
 
 	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId) {
@@ -173,7 +186,7 @@ public class DatabaseManager {
 		v.put(COL_VOLUME, bi.getVolume());
 		Log.d(TAG,"inserting into " +TABLE_BOOKS + " values:" + v.toString());
 		long booksId = db.insert(TABLE_BOOKS, null, v);
-		
+		bi.setBookId(booksId);
 		v.clear();
 		v.put(COL_FOLLOWS_ID, seriesId);
 		v.put(COL_BOOKS_ID, booksId);
@@ -197,7 +210,10 @@ public class DatabaseManager {
 						c.getLong(c.getColumnIndex(COL_ID)),
 						c.getString(c.getColumnIndex(COL_TITLE)),
 						c.getString(c.getColumnIndex(COL_PUBLISHER)),
-						c.getString(c.getColumnIndex(COL_AUTHOR)) );
+						c.getString(c.getColumnIndex(COL_AUTHOR)),
+						c.getInt(c.getColumnIndex(COL_OWNED_COUNT)),
+						c.getInt(c.getColumnIndex(COL_TOTAL_NOT_IGNORED_COUNT))
+						);
 				series.add(bs);
 			}
 		}finally{

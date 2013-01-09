@@ -13,14 +13,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -37,7 +35,7 @@ public class DetailActivity extends Activity {
 	private Button btnReserve;
 
 	private BookSeries bookSeries;
-	private ImageLoader loader = new ImageLoader(new Handler());
+	private ImageLoader loader;
 	private DetailListAdapter detailListAdapter;
 	
     @Override
@@ -50,6 +48,8 @@ public class DetailActivity extends Activity {
         imgThumb = (ImageView) findViewById(R.id.img_detail_comic_thumb);
         listDetail = (ListView) findViewById(R.id.list_detail);
         btnReserve= (Button) findViewById(R.id.btn_reserve);
+
+        loader = ImageLoader.getInstance();
         
         detailListAdapter = new DetailListAdapter(this, loader);
         /*

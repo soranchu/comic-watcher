@@ -35,17 +35,13 @@ public class DetailListAdapter extends ArrayAdapter<BookInfo> {
 	private boolean isItemOwned(BookInfo bi){
 		Boolean b = ownedFlags.get(bi.getIsbn());
 		if( b != null ){
-			Log.d(TAG, "read item checked " + bi.getIsbn() + " flag:"+b);
 			return b;
 		}
-		Log.d(TAG, "read item checked " + bi.getIsbn() + " not found");
 		return false;
 	}
 	
 	private void setItemOwned(BookInfo bi, boolean owned){
 		ownedFlags.put(bi.getIsbn(), owned);
-		Log.d(TAG, "item checked " + bi.getIsbn() + " flag:"+owned);
-		Log.d(TAG, "items: "+ ownedFlags);
 	}
 	
 	@Override

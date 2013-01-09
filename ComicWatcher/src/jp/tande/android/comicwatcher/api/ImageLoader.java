@@ -20,7 +20,17 @@ public class ImageLoader {
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 	private Handler handler;
 	
-	public ImageLoader(Handler handler) {
+	private static ImageLoader instance;
+	
+	public static void initInstance(Handler handler){
+		instance = new ImageLoader(handler);
+	}
+	
+	public static ImageLoader getInstance(){
+		return instance;
+	}
+	
+	private ImageLoader(Handler handler) {
 
 		this.handler = handler;
 	}
