@@ -18,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -68,6 +70,16 @@ public class TopListActivity extends Activity {
         listFollows.setAdapter(followsAdapter);
         registerForContextMenu(listFollows);
 
+        listFollows.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
+				BookSeries bs = followsAdapter.getItem(position);
+				Intent i = new Intent(TopListActivity.this, DetailActivity.class);
+				i.putExtra("data", bs);
+				startActivity(i);
+			}
+		});
+        
         DatabaseManager.initializeInstance(this);
     }
     

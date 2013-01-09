@@ -1,6 +1,7 @@
 package jp.tande.android.comicwatcher.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class DatabaseManager {
 					+ COL_SERIES + " text, "
 					+ COL_AUTHOR + " text, "
 					+ COL_PUBLISHER + " text, "
-					+ COL_ISBN + " integer not null, "
+					+ COL_ISBN + " integer unique not null, "
 					+ COL_SALES_DATE + " text, "
 					+ COL_URL + " text, "
 					+ COL_AFF_URL + " text, "
@@ -136,7 +137,12 @@ public class DatabaseManager {
 	
 	public long addBookSeries(BookSeries bs){
 		SQLiteDatabase db = helper.getWritableDatabase();
+		boolean update = false;
 		ContentValues v = new ContentValues();
+		if( bs.getSeriesId() > 0 ){
+			v.put(COL_ID, bs.getSeriesId());
+			update = true;
+		}
 		v.put(COL_TITLE, bs.getTitle());
 		v.put(COL_AUTHOR, bs.getAuthor());
 		v.put(COL_PUBLISHER, bs.getPublisher());
@@ -148,10 +154,10 @@ public class DatabaseManager {
 		long ret = 0;
 		try{
 			Log.d(TAG,"inserting into " +TABLE_FOLLOWS + " values:" + v.toString());
-			ret = db.insert(TABLE_FOLLOWS, null, v);
+			ret = db.replace(TABLE_FOLLOWS, null, v);
 			if( bs.getBooks() != null ){
 				for (BookInfo bi : bs.getBooks()) {
-					addBookAsSeries(db, bi,ret);
+					addBookAsSeries(db, bi,ret, update);
 				}
 			}
 			db.setTransactionSuccessful();
@@ -167,8 +173,14 @@ public class DatabaseManager {
 		db.delete(TABLE_FOLLOWS, BaseColumns._ID + "=?", new String[]{ String.valueOf(seriesId) });
 	}
 
-	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId) {
+	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId, boolean isUpdate) {
 		ContentValues v = new ContentValues();
+		if( bi.getBookId() > 0 ){
+			v.put(COL_ID, bi.getBookId());
+		}else{
+			isUpdate = false;
+		}
+		
 		v.put(COL_TITLE, bi.getTitle());
 		v.put(COL_SUB_TITLE, bi.getSubTitle());
 		v.put(COL_SERIES, bi.getSeriesName());
@@ -185,14 +197,16 @@ public class DatabaseManager {
 		v.put(COL_LAST_UPDATE, new Date().getTime());
 		v.put(COL_VOLUME, bi.getVolume());
 		Log.d(TAG,"inserting into " +TABLE_BOOKS + " values:" + v.toString());
-		long booksId = db.insert(TABLE_BOOKS, null, v);
+		long booksId = db.replace(TABLE_BOOKS, null, v);
 		bi.setBookId(booksId);
 		v.clear();
 		v.put(COL_FOLLOWS_ID, seriesId);
 		v.put(COL_BOOKS_ID, booksId);
-		Log.d(TAG,"inserting into " +TABLE_FOLLOWS_BOOKS + " values:" + v.toString());
-		db.insert(TABLE_FOLLOWS_BOOKS, null, v);
-
+		
+		if( ! isUpdate ){
+			Log.d(TAG,"inserting into " +TABLE_FOLLOWS_BOOKS + " values:" + v.toString());
+			db.insert(TABLE_FOLLOWS_BOOKS, null, v);
+		}
 	}
 	
 	public List<BookSeries> querySeries(){
@@ -222,6 +236,48 @@ public class DatabaseManager {
 			}
 		}
 		return series;
+	}
+	public void populateSeries(BookSeries bs) {
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		try{
+			c = db.rawQuery("select *" +
+//					" B." + COL_ID + " as " + COL_ID + "," +
+					" from " + TABLE_BOOKS + " as B " +
+					" left join " + TABLE_FOLLOWS_BOOKS + " as FB on B."+COL_ID +  "= FB." + COL_BOOKS_ID +
+					" where FB." + COL_FOLLOWS_ID + " = ?"
+					, new String[]{""+bs.getSeriesId()} );
+			Log.d(TAG,"books count:" + c.getCount());
+			Log.d(TAG,"books cols:" + Arrays.deepToString(c.getColumnNames()));
+			
+			while( c.moveToNext() ){
+				BookInfo bi = new BookInfo();
+				bi.setItem(new BookInfo.Item());
+				bi.setBookId(c.getLong(c.getColumnIndex(COL_ID)));
+				bi.setTitle(c.getString(c.getColumnIndex(COL_TITLE)));
+				bi.setSubTitle(c.getString(c.getColumnIndex(COL_SUB_TITLE)));
+				bi.setSeriesName(c.getString(c.getColumnIndex(COL_SERIES)));
+				bi.setAuthor(c.getString(c.getColumnIndex(COL_AUTHOR)));
+				bi.setPublisherName(c.getString(c.getColumnIndex(COL_PUBLISHER)));
+				bi.setIsbn(c.getString(c.getColumnIndex(COL_ISBN)));
+				bi.setSalesDate(c.getString(c.getColumnIndex(COL_SALES_DATE)));
+				bi.setItemUrl(c.getString(c.getColumnIndex(COL_URL)));
+				bi.setAffiliateUrl(c.getString(c.getColumnIndex(COL_AFF_URL)));
+				bi.setMediumImageUrl(c.getString(c.getColumnIndex(COL_IMAGE_URL)));
+				bi.setAvailability(c.getString(c.getColumnIndex(COL_AVAILABILITY)));
+				bi.setHidden(1==c.getInt(c.getColumnIndex(COL_FLAG_HIDE)));
+				bi.setOwned(1==c.getInt(c.getColumnIndex(COL_FLAG_OWNED)));
+				//bi.set(c.getString(c.getColumnIndex(COL_LAST_UPDATE)));
+				bi.setVolume(c.getInt(c.getColumnIndex(COL_VOLUME)));
+
+				bs.addBook(bi);
+			}
+		}finally{
+			if( c!= null ){
+				c.close();
+			}
+		}
+		return;
 	}
 	
 }

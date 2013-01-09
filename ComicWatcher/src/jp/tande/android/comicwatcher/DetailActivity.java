@@ -72,8 +72,12 @@ public class DetailActivity extends Activity {
         txtTitle.setText(bookSeries.getTitle());
         txtAuthor.setText(bookSeries.getAuthor());
         txtSeries.setText(bookSeries.getPublisher());//TODO change to series
+        if( ! bookSeries.isPoplulated() ){
+        	DatabaseManager.getInstance().populateSeries(bookSeries);
+        	
+        }
         if( bookSeries.getLatest() != null ){
-        	String url = bookSeries.getLatest().getLargeImageUrl();
+        	String url = bookSeries.getLatest().getMediumImageUrl();
         	if( url != null ){
         		loader.queue(url, new ImageLoader.ImageLoaderListener() {
 					

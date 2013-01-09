@@ -30,6 +30,10 @@ public class BookInfo implements Serializable{
 	public int getVolume() {
 		return volume;
 	}
+	
+	void setVolume(int vol){
+		this.volume = vol;
+	}
 
 	private static final String TAG="BookInfo";
 	public static class Item implements Serializable{
