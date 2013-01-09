@@ -155,7 +155,6 @@ public class DetailActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-    	loader.shutdown();
     	super.onDestroy();
     }
 }

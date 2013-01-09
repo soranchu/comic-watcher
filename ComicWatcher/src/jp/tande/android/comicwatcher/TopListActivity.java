@@ -109,6 +109,12 @@ public class TopListActivity extends Activity {
     	reloadFollows();
     	super.onResume();
     }
+    
+    @Override
+    protected void onDestroy() {
+    	loader.shutdown();
+    	super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
