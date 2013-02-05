@@ -2,51 +2,104 @@ package jp.tande.android.comicwatcher.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.client.utils.URIUtils;
+
+import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-public class DatabaseManager {
+public class DatabaseManager extends ContentProvider{
 	private static final String TAG = "DatabaseManager";
+	private static final String PKG = "jp.tande.android.comicwatcher";
+	private static final String BaseSingleMimeType = "vnd.android.cursor.item/";
+	private static final String BaseMultiMimeType = "vnd.android.cursor.dir/";
 
-	public static final String TABLE_FOLLOWS = "follows";
-	public static final String COL_ID = "_id";
-	public static final String COL_TITLE = "title";
-	public static final String COL_AUTHOR = "author";
-	public static final String COL_PUBLISHER = "publisher";
-	public static final String COL_LAST_UPDATE = "last_update";
-	public static final String COL_VOLUMES = "volumes";
-	public static final String COL_OWNED_COUNT = "owned_count";
-	public static final String COL_TOTAL_NOT_IGNORED_COUNT = "total_count";
+	private static final String AUTHORITY = PKG + ".provider";
 
-	public static final String TABLE_BOOKS = "books";
-	//title
-	public static final String COL_TITLE_POST_FIX = "title_post_fix";
-	public static final String COL_SUB_TITLE = "sub_title";
-	public static final String COL_SERIES = "series";
-	//author
-	//publisher
-	public static final String COL_ISBN = "isbn";
-	public static final String COL_SALES_DATE = "sales_date";
-	public static final String COL_URL = "url";
-	public static final String COL_AFF_URL = "affiliate_url";
-	public static final String COL_IMAGE_URL = "image_url";
-	public static final String COL_AVAILABILITY = "availability";
-	//last_update
-	public static final String COL_VOLUME = "volume";
-	public static final String COL_FLAG_HIDE = "hide";
-	public static final String COL_FLAG_OWNED = "owned";
+	private static class Contract{
+		public static class Follows {
+			public static final String TABLE = "follows";
+			public static final Uri ContentUri = Uri.parse("content://" + AUTHORITY + "/" + TABLE);
+			public static final String MimeType = BaseSingleMimeType+  PKG + "." + TABLE;
+			public static final String MimeTypes = BaseMultiMimeType + PKG + "." + TABLE;
 
-	public static final String TABLE_FOLLOWS_BOOKS = "follows_books";
-	public static final String COL_FOLLOWS_ID = "follows_id";
-	public static final String COL_BOOKS_ID = "books_id";
+			public static class Columns implements BaseColumns{
+				public static final String COL_TITLE = "title";
+				public static final String COL_AUTHOR = "author";
+				public static final String COL_PUBLISHER = "publisher";
+				public static final String COL_LAST_UPDATE = "last_update";
+				public static final String COL_VOLUMES = "volumes";
+				public static final String COL_OWNED_COUNT = "owned_count";
+				public static final String COL_TOTAL_NOT_IGNORED_COUNT = "total_count";
+			}
+		}
+		public static class Books{
+			public static final String TABLE = "books";
+			public static final Uri ContentUri = Uri.parse("content://" + AUTHORITY + "/" + TABLE);
+			public static final String MimeType = BaseSingleMimeType+  PKG + "." + TABLE;
+			public static final String MimeTypes = BaseMultiMimeType + PKG + "." + TABLE;
+			public static class Columns implements BaseColumns{
+				public static final String COL_TITLE = "title";
+				public static final String COL_TITLE_POST_FIX = "title_post_fix";
+				public static final String COL_SUB_TITLE = "sub_title";
+				public static final String COL_SERIES = "series";
+				public static final String COL_AUTHOR = "author";
+				public static final String COL_PUBLISHER = "publisher";
+				public static final String COL_ISBN = "isbn";
+				public static final String COL_SALES_DATE = "sales_date";
+				public static final String COL_URL = "url";
+				public static final String COL_AFF_URL = "affiliate_url";
+				public static final String COL_IMAGE_URL = "image_url";
+				public static final String COL_AVAILABILITY = "availability";
+				public static final String COL_LAST_UPDATE = "last_update";
+				public static final String COL_VOLUME = "volume";
+				public static final String COL_FLAG_HIDE = "hide";
+				public static final String COL_FLAG_OWNED = "owned";
+			}
+		}
+		public static class FollowsBooks{
+			public static final String TABLE = "follows_books";
+			public static final Uri ContentUri = Uri.parse("content://" + AUTHORITY + "/" + TABLE);
+			public static final String MimeType = BaseSingleMimeType+  PKG + "." + TABLE;
+			public static final String MimeTypes = BaseMultiMimeType + PKG + "." + TABLE;
+			public static class Columns implements BaseColumns{
+				public static final String COL_FOLLOWS_ID = "follows_id";
+				public static final String COL_BOOKS_ID = "books_id";
+			}
+		}
+		
+         
+	}
+	
+	private static final int MATCH_FOLLOWS = 1;
+	private static final int MATCH_FOLLOWS_ID = 2;
+	private static final int MATCH_BOOKS = 3;
+	private static final int MATCH_BOOKS_ID = 4;
+	private static final int MATCH_FOLLOWS_BOOKS = 5;
+	private static final int MATCH_FOLLOWS_BOOKS_ID = 6;
+	
+	private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    static {
+        sUriMatcher.addURI(AUTHORITY, Contract.Follows.TABLE, MATCH_FOLLOWS);
+        sUriMatcher.addURI(AUTHORITY, Contract.Follows.TABLE + "/#", MATCH_FOLLOWS_ID);
+        sUriMatcher.addURI(AUTHORITY, Contract.Books.TABLE, MATCH_BOOKS);
+        sUriMatcher.addURI(AUTHORITY, Contract.Books.TABLE + "/#", MATCH_BOOKS_ID);
+        sUriMatcher.addURI(AUTHORITY, Contract.Follows.TABLE + "/#/"+ Contract.Books.TABLE, MATCH_FOLLOWS_BOOKS);
+        sUriMatcher.addURI(AUTHORITY, Contract.Follows.TABLE + "/#/"+ Contract.Books.TABLE + "/#", MATCH_FOLLOWS_BOOKS_ID);
+    }
 
 	private class DatabaseHelper extends SQLiteOpenHelper {
 		private static final String TAG = "DatabaseHelper";
@@ -64,38 +117,38 @@ public class DatabaseManager {
 		public void onCreate(SQLiteDatabase db) {
 			Log.d(TAG, "creating tables...");
 			db.execSQL(
-					"create table " + TABLE_FOLLOWS +" ("
-					+ COL_ID + " integer primary key autoincrement not null, "
-					+ COL_TITLE + " text not null, "
-					+ COL_AUTHOR + " text, "
-					+ COL_PUBLISHER + " text, "
-					+ COL_LAST_UPDATE + " long not null, "
-					+ COL_VOLUMES + " integer,"
-					+ COL_OWNED_COUNT + " integer default 0," 
-					+ COL_TOTAL_NOT_IGNORED_COUNT + " integer default 0)" );
+					"create table " + Contract.Follows.TABLE +" ("
+					+ Contract.Follows.Columns._ID + " integer primary key autoincrement not null, "
+					+ Contract.Follows.Columns.COL_TITLE + " text not null, "
+					+ Contract.Follows.Columns.COL_AUTHOR + " text, "
+					+ Contract.Follows.Columns.COL_PUBLISHER + " text, "
+					+ Contract.Follows.Columns.COL_LAST_UPDATE + " long not null, "
+					+ Contract.Follows.Columns.COL_VOLUMES + " integer,"
+					+ Contract.Follows.Columns.COL_OWNED_COUNT + " integer default 0," 
+					+ Contract.Follows.Columns.COL_TOTAL_NOT_IGNORED_COUNT + " integer default 0)" );
 			db.execSQL(
-					"create table " + TABLE_BOOKS +" ("	
-					+ COL_ID + " integer primary key autoincrement not null, "
-					+ COL_TITLE + " text not null, "
-					+ COL_SUB_TITLE + " text, "
-					+ COL_SERIES + " text, "
-					+ COL_AUTHOR + " text, "
-					+ COL_PUBLISHER + " text, "
-					+ COL_ISBN + " integer unique not null, "
-					+ COL_SALES_DATE + " text, "
-					+ COL_URL + " text, "
-					+ COL_AFF_URL + " text, "
-					+ COL_AVAILABILITY + " integer default 0, "
-					+ COL_IMAGE_URL + " text, "
-					+ COL_FLAG_HIDE + " integer default 0, "
-					+ COL_FLAG_OWNED + " integer default 0, "
-					+ COL_LAST_UPDATE + " long not null, "
-					+ COL_VOLUME + " integer )" );
+					"create table " + Contract.Books.TABLE +" ("	
+					+ Contract.Books.Columns._ID + " integer primary key autoincrement not null, "
+					+ Contract.Books.Columns.COL_TITLE + " text not null, "
+					+ Contract.Books.Columns.COL_SUB_TITLE + " text, "
+					+ Contract.Books.Columns.COL_SERIES + " text, "
+					+ Contract.Books.Columns.COL_AUTHOR + " text, "
+					+ Contract.Books.Columns.COL_PUBLISHER + " text, "
+					+ Contract.Books.Columns.COL_ISBN + " integer unique not null, "
+					+ Contract.Books.Columns.COL_SALES_DATE + " text, "
+					+ Contract.Books.Columns.COL_URL + " text, "
+					+ Contract.Books.Columns.COL_AFF_URL + " text, "
+					+ Contract.Books.Columns.COL_AVAILABILITY + " integer default 0, "
+					+ Contract.Books.Columns.COL_IMAGE_URL + " text, "
+					+ Contract.Books.Columns.COL_FLAG_HIDE + " integer default 0, "
+					+ Contract.Books.Columns.COL_FLAG_OWNED + " integer default 0, "
+					+ Contract.Books.Columns.COL_LAST_UPDATE + " long not null, "
+					+ Contract.Books.Columns.COL_VOLUME + " integer )" );
 			db.execSQL(
-					"create table " + TABLE_FOLLOWS_BOOKS +" ("	
-					+ COL_ID + " integer primary key autoincrement not null, "
-					+ COL_FOLLOWS_ID + " integer not null, "
-					+ COL_BOOKS_ID + " integer not null )");
+					"create table " + Contract.FollowsBooks.TABLE +" ("	
+					+ Contract.FollowsBooks.Columns._ID + " integer primary key autoincrement not null, "
+					+ Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " integer not null, "
+					+ Contract.FollowsBooks.Columns.COL_BOOKS_ID + " integer not null )");
 					
 		}
 
@@ -104,57 +157,251 @@ public class DatabaseManager {
 			Log.d(TAG, "upgrading tables from " + oldVersion + " to " + newVersion);
 			
 			Log.d(TAG, "dropping tables...");
-			db.execSQL("drop table if exists " + TABLE_FOLLOWS );
-			db.execSQL("drop table if exists " + TABLE_BOOKS );
-			db.execSQL("drop table if exists " + TABLE_FOLLOWS_BOOKS );
+			db.execSQL("drop table if exists " + Contract.Follows.TABLE );
+			db.execSQL("drop table if exists " + Contract.Books.TABLE );
+			db.execSQL("drop table if exists " + Contract.FollowsBooks.TABLE );
 			
 			onCreate(db);
-
 		}
-
 	}
-
 	
 	private DatabaseHelper helper;
-	private Context context;
 	
-	private static DatabaseManager instance = null;
-	public static DatabaseManager getInstance(){
-		return instance;
+	@Override
+	public boolean onCreate() {
+		this.helper = new DatabaseHelper(getContext());
+		return true;
 	}
-	public static void initializeInstance(Context context){
-		if( instance == null ){
-			instance = new DatabaseManager(context);
+	
+	private int matchUri(Uri uri){
+		int match = sUriMatcher.match(uri);
+		if( match == -1 ){
+			throw new UnsupportedOperationException("unknown uri :" +uri.toString());
+		}
+		return match;
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+		case MATCH_FOLLOWS_ID:
+			return insertFollows(uri, values);
+/*		case MATCH_BOOKS:
+		case MATCH_BOOKS_ID:
+			return insertBooks(uri, values);*/
+		case MATCH_FOLLOWS_BOOKS:
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return insertBooks(uri, values);
+		}
+		throw new UnsupportedOperationException("unknown uri :" +uri.toString());
+	}
+	
+	private Uri insertBooks(Uri uri, ContentValues values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Uri insertFollows(Uri uri, ContentValues values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection,
+			String[] selectionArgs, String sortOrder) {
+
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+		case MATCH_FOLLOWS_ID:
+			return queryFollows(uri, projection, selection, selectionArgs, sortOrder);
+		case MATCH_BOOKS:
+		case MATCH_BOOKS_ID:
+			return queryBooks(uri, projection, selection, selectionArgs, sortOrder);
+		case MATCH_FOLLOWS_BOOKS:
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return queryFollowBooks(uri, projection, selection, selectionArgs, sortOrder);
+		}
+		return null;
+	}
+	
+	private Cursor queryFollowBooks(Uri uri, String[] projection,
+			String selection, String[] selectionArgs, String sortOrder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Cursor queryBooks(Uri uri, String[] projection, String selection,
+			String[] selectionArgs, String sortOrder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Cursor queryFollows(Uri uri, String[] projection, String selection,
+			String[] selectionArgs, String sortOrder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection,
+			String[] selectionArgs) {
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+		case MATCH_FOLLOWS_ID:
+			return updateFollows(uri, selection, selectionArgs);
+		case MATCH_BOOKS:
+		case MATCH_BOOKS_ID:
+			return updateBooks(uri, selection, selectionArgs);
+		case MATCH_FOLLOWS_BOOKS:
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return updateFollowBooks(uri, selection, selectionArgs);
+		}
+		return 0;
+	}
+	
+	private int updateFollowBooks(Uri uri, String selection,
+			String[] selectionArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int updateBooks(Uri uri, String selection, String[] selectionArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int updateFollows(Uri uri, String selection, String[] selectionArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+		case MATCH_FOLLOWS_ID:
+			return deleteFollows(uri, selection, selectionArgs);
+		/*case MATCH_BOOKS:*/
+		case MATCH_BOOKS_ID:
+			return deleteBooks(uri, selection, selectionArgs);
+		case MATCH_FOLLOWS_BOOKS:
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return deleteFollowBooks(uri, selection, selectionArgs);
+		}
+		throw new UnsupportedOperationException("not supported uri:" + uri.toString() );
+	}
+	private int deleteFollowBooks(Uri uri, String selection,
+			String[] selectionArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+		
+	}
+
+	private int deleteBooks(Uri uri, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		List<String> paths = uri.getPathSegments();
+		if( paths.size() > 1 ){
+			db.delete(Contract.Books.TABLE, 
+					appendSelectionClause(selection, BaseColumns._ID + "=?"), 
+					appendSelectionArgs(selectionArgs, paths.get(1)) );
+			Cursor c = db.query(Contract.FollowsBooks.TABLE, new String[]{Contract.FollowsBooks.Columns.COL_FOLLOWS_ID}, 
+					Contract.FollowsBooks.Columns.COL_BOOKS_ID, new String[]{paths.get(1)}, null, null, null);
+			List<Long> follows = new ArrayList<Long>();
+			while( c.moveToNext() ){
+				follows.add(c.getLong(0));
+			}
+			db.delete(Contract.FollowsBooks.TABLE, Contract.FollowsBooks.Columns.COL_BOOKS_ID, new String[]{paths.get(1)});
+			for (Long l : follows) {
+				getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(Contract.Follows.ContentUri, l), null);
+
+			}
+			getContext().getContentResolver().notifyChange(uri,null);
+			return 1;
 		}else{
-			Log.w(TAG, "DatabaseManager already initialized!");
+			throw new UnsupportedOperationException("not supported uri:" + uri.toString() );
 		}
 	}
-	
-	private DatabaseManager(Context context){
-		this.context = context;
-		this.helper = new DatabaseHelper(context);
+
+	private int deleteFollows(Uri uri, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		List<String> paths = uri.getPathSegments();
+		int changed;
+		if( paths.size() > 1 ){
+			changed = db.delete(Contract.Follows.TABLE, 
+					appendSelectionClause(selection, BaseColumns._ID + "=?"), 
+					appendSelectionArgs(selectionArgs, paths.get(1)) );
+		}else{
+			changed = db.delete(Contract.Follows.TABLE, selection, selectionArgs);
+		}
+		if( changed > 0 ){
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
+		return changed;
 	}
+
+	private String appendSelectionClause(String selection, String append){
+		if( selection == null || selection.isEmpty()){
+			return append;
+		}
+		return selection + " AND " + append;
+	}
+	
+	private String[] appendSelectionArgs(String[] selectionArgs, String append){
+		ArrayList<String> args = new ArrayList<String>();
+		if( selectionArgs == null || selectionArgs.length == 0 ){
+			return new String[]{append};
+		}
+		args.addAll(Arrays.asList(selectionArgs) );
+		args.add(append);
+		return args.toArray(new String[]{});
+	}
+	
+	@Override
+	public String getType(Uri uri) {
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+			return Contract.Follows.MimeTypes;
+		case MATCH_FOLLOWS_ID:
+			return Contract.Follows.MimeType;
+		case MATCH_BOOKS:
+			return Contract.Books.MimeTypes;
+		case MATCH_BOOKS_ID:
+			return Contract.Books.MimeType;
+		case MATCH_FOLLOWS_BOOKS:
+			return Contract.FollowsBooks.MimeTypes;
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return Contract.FollowsBooks.MimeType;
+		}
+		return null;
+	}
+
 	
 	public long addBookSeries(BookSeries bs){
 		SQLiteDatabase db = helper.getWritableDatabase();
 		boolean update = false;
 		ContentValues v = new ContentValues();
 		if( bs.getSeriesId() > 0 ){
-			v.put(COL_ID, bs.getSeriesId());
+			v.put(Contract.Follows.Columns._ID, bs.getSeriesId());
 			update = true;
 		}
-		v.put(COL_TITLE, bs.getTitle());
-		v.put(COL_AUTHOR, bs.getAuthor());
-		v.put(COL_PUBLISHER, bs.getPublisher());
-		v.put(COL_LAST_UPDATE, new Date().getTime());
-		v.put(COL_VOLUMES, bs.getBooks().size());
-		v.put(COL_OWNED_COUNT, bs.getOwnedCount());
-		v.put(COL_TOTAL_NOT_IGNORED_COUNT, bs.getTotalCount());
+		v.put(Contract.Follows.Columns.COL_TITLE, bs.getTitle());
+		v.put(Contract.Follows.Columns.COL_AUTHOR, bs.getAuthor());
+		v.put(Contract.Follows.Columns.COL_PUBLISHER, bs.getPublisher());
+		v.put(Contract.Follows.Columns.COL_LAST_UPDATE, new Date().getTime());
+		v.put(Contract.Follows.Columns.COL_VOLUMES, bs.getBooks().size());
+		v.put(Contract.Follows.Columns.COL_OWNED_COUNT, bs.getOwnedCount());
+		v.put(Contract.Follows.Columns.COL_TOTAL_NOT_IGNORED_COUNT, bs.getTotalCount());
 		db.beginTransaction();
 		long ret = 0;
 		try{
-			Log.d(TAG,"inserting into " +TABLE_FOLLOWS + " values:" + v.toString());
-			ret = db.replace(TABLE_FOLLOWS, null, v);
+			Log.d(TAG,"inserting into " +Contract.Follows.TABLE + " values:" + v.toString());
+			ret = db.replace(Contract.Follows.TABLE, null, v);
 			if( bs.getBooks() != null ){
 				for (BookInfo bi : bs.getBooks()) {
 					addBookAsSeries(db, bi,ret, update);
@@ -170,42 +417,42 @@ public class DatabaseManager {
 	
 	public void removeBookSeries(long seriesId){
 		SQLiteDatabase db = helper.getWritableDatabase();
-		db.delete(TABLE_FOLLOWS, BaseColumns._ID + "=?", new String[]{ String.valueOf(seriesId) });
+		db.delete(Contract.Follows.TABLE, BaseColumns._ID + "=?", new String[]{ String.valueOf(seriesId) });
 	}
 
 	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId, boolean isUpdate) {
 		ContentValues v = new ContentValues();
 		if( bi.getBookId() > 0 ){
-			v.put(COL_ID, bi.getBookId());
+			v.put(Contract.Books.Columns._ID, bi.getBookId());
 		}else{
 			isUpdate = false;
 		}
 		
-		v.put(COL_TITLE, bi.getTitle());
-		v.put(COL_SUB_TITLE, bi.getSubTitle());
-		v.put(COL_SERIES, bi.getSeriesName());
-		v.put(COL_AUTHOR, bi.getAuthor());
-		v.put(COL_PUBLISHER, bi.getPublisherName());
-		v.put(COL_ISBN, bi.getIsbn());
-		v.put(COL_SALES_DATE, bi.getSalesDate());
-		v.put(COL_URL, bi.getItemUrl());
-		v.put(COL_AFF_URL, bi.getAffiliateUrl());
-		v.put(COL_IMAGE_URL, bi.getMediumImageUrl());
-		v.put(COL_AVAILABILITY, bi.getAvailability());
-		v.put(COL_FLAG_HIDE, bi.isHidden());
-		v.put(COL_FLAG_OWNED, bi.isOwned());
-		v.put(COL_LAST_UPDATE, new Date().getTime());
-		v.put(COL_VOLUME, bi.getVolume());
-		Log.d(TAG,"inserting into " +TABLE_BOOKS + " values:" + v.toString());
-		long booksId = db.replace(TABLE_BOOKS, null, v);
+		v.put(Contract.Books.Columns.COL_TITLE, bi.getTitle());
+		v.put(Contract.Books.Columns.COL_SUB_TITLE, bi.getSubTitle());
+		v.put(Contract.Books.Columns.COL_SERIES, bi.getSeriesName());
+		v.put(Contract.Books.Columns.COL_AUTHOR, bi.getAuthor());
+		v.put(Contract.Books.Columns.COL_PUBLISHER, bi.getPublisherName());
+		v.put(Contract.Books.Columns.COL_ISBN, bi.getIsbn());
+		v.put(Contract.Books.Columns.COL_SALES_DATE, bi.getSalesDate());
+		v.put(Contract.Books.Columns.COL_URL, bi.getItemUrl());
+		v.put(Contract.Books.Columns.COL_AFF_URL, bi.getAffiliateUrl());
+		v.put(Contract.Books.Columns.COL_IMAGE_URL, bi.getMediumImageUrl());
+		v.put(Contract.Books.Columns.COL_AVAILABILITY, bi.getAvailability());
+		v.put(Contract.Books.Columns.COL_FLAG_HIDE, bi.isHidden());
+		v.put(Contract.Books.Columns.COL_FLAG_OWNED, bi.isOwned());
+		v.put(Contract.Books.Columns.COL_LAST_UPDATE, new Date().getTime());
+		v.put(Contract.Books.Columns.COL_VOLUME, bi.getVolume());
+		Log.d(TAG,"inserting into " +Contract.Books.TABLE + " values:" + v.toString());
+		long booksId = db.replace(Contract.Books.TABLE, null, v);
 		bi.setBookId(booksId);
 		v.clear();
-		v.put(COL_FOLLOWS_ID, seriesId);
-		v.put(COL_BOOKS_ID, booksId);
+		v.put(Contract.FollowsBooks.Columns.COL_FOLLOWS_ID, seriesId);
+		v.put(Contract.FollowsBooks.Columns.COL_BOOKS_ID, booksId);
 		
 		if( ! isUpdate ){
-			Log.d(TAG,"inserting into " +TABLE_FOLLOWS_BOOKS + " values:" + v.toString());
-			db.insert(TABLE_FOLLOWS_BOOKS, null, v);
+			Log.d(TAG,"inserting into " +Contract.FollowsBooks.TABLE + " values:" + v.toString());
+			db.insert(Contract.FollowsBooks.TABLE, null, v);
 		}
 	}
 	
@@ -215,18 +462,18 @@ public class DatabaseManager {
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor c = null;
 		try{
-			c = db.query(TABLE_FOLLOWS, /*cols*/null, 
+			c = db.query(Contract.Follows.TABLE, /*cols*/null, 
 					/*selection*/null, /*selectionArgs*/null, 
 					/*groupBy*/null, /*having*/null, /*orderBy*/null);
 			//c.moveToFirst();
 			while( c.moveToNext() ){
 				BookSeries bs = new BookSeries(
-						c.getLong(c.getColumnIndex(COL_ID)),
-						c.getString(c.getColumnIndex(COL_TITLE)),
-						c.getString(c.getColumnIndex(COL_PUBLISHER)),
-						c.getString(c.getColumnIndex(COL_AUTHOR)),
-						c.getInt(c.getColumnIndex(COL_OWNED_COUNT)),
-						c.getInt(c.getColumnIndex(COL_TOTAL_NOT_IGNORED_COUNT))
+						c.getLong(c.getColumnIndex(Contract.Follows.Columns._ID)),
+						c.getString(c.getColumnIndex(Contract.Follows.Columns.COL_TITLE)),
+						c.getString(c.getColumnIndex(Contract.Follows.Columns.COL_PUBLISHER)),
+						c.getString(c.getColumnIndex(Contract.Follows.Columns.COL_AUTHOR)),
+						c.getInt(c.getColumnIndex(Contract.Follows.Columns.COL_OWNED_COUNT)),
+						c.getInt(c.getColumnIndex(Contract.Follows.Columns.COL_TOTAL_NOT_IGNORED_COUNT))
 						);
 				series.add(bs);
 			}
@@ -243,9 +490,10 @@ public class DatabaseManager {
 		try{
 			c = db.rawQuery("select *" +
 //					" B." + COL_ID + " as " + COL_ID + "," +
-					" from " + TABLE_BOOKS + " as B " +
-					" left join " + TABLE_FOLLOWS_BOOKS + " as FB on B."+COL_ID +  "= FB." + COL_BOOKS_ID +
-					" where FB." + COL_FOLLOWS_ID + " = ?"
+					" from " + Contract.Books.TABLE + " as B " +
+					" left join " + Contract.FollowsBooks.TABLE + " as FB " +
+							" on B."+Contract.Books.Columns._ID +  "= FB." + Contract.FollowsBooks.Columns.COL_BOOKS_ID +
+					" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?"
 					, new String[]{""+bs.getSeriesId()} );
 			Log.d(TAG,"books count:" + c.getCount());
 			Log.d(TAG,"books cols:" + Arrays.deepToString(c.getColumnNames()));
@@ -253,22 +501,22 @@ public class DatabaseManager {
 			while( c.moveToNext() ){
 				BookInfo bi = new BookInfo();
 				bi.setItem(new BookInfo.Item());
-				bi.setBookId(c.getLong(c.getColumnIndex(COL_ID)));
-				bi.setTitle(c.getString(c.getColumnIndex(COL_TITLE)));
-				bi.setSubTitle(c.getString(c.getColumnIndex(COL_SUB_TITLE)));
-				bi.setSeriesName(c.getString(c.getColumnIndex(COL_SERIES)));
-				bi.setAuthor(c.getString(c.getColumnIndex(COL_AUTHOR)));
-				bi.setPublisherName(c.getString(c.getColumnIndex(COL_PUBLISHER)));
-				bi.setIsbn(c.getString(c.getColumnIndex(COL_ISBN)));
-				bi.setSalesDate(c.getString(c.getColumnIndex(COL_SALES_DATE)));
-				bi.setItemUrl(c.getString(c.getColumnIndex(COL_URL)));
-				bi.setAffiliateUrl(c.getString(c.getColumnIndex(COL_AFF_URL)));
-				bi.setMediumImageUrl(c.getString(c.getColumnIndex(COL_IMAGE_URL)));
-				bi.setAvailability(c.getString(c.getColumnIndex(COL_AVAILABILITY)));
-				bi.setHidden(1==c.getInt(c.getColumnIndex(COL_FLAG_HIDE)));
-				bi.setOwned(1==c.getInt(c.getColumnIndex(COL_FLAG_OWNED)));
-				//bi.set(c.getString(c.getColumnIndex(COL_LAST_UPDATE)));
-				bi.setVolume(c.getInt(c.getColumnIndex(COL_VOLUME)));
+				bi.setBookId(c.getLong(c.getColumnIndex(Contract.Books.Columns._ID)));
+				bi.setTitle(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_TITLE)));
+				bi.setSubTitle(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SUB_TITLE)));
+				bi.setSeriesName(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SERIES)));
+				bi.setAuthor(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AUTHOR)));
+				bi.setPublisherName(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_PUBLISHER)));
+				bi.setIsbn(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_ISBN)));
+				bi.setSalesDate(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+				bi.setItemUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_URL)));
+				bi.setAffiliateUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AFF_URL)));
+				bi.setMediumImageUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_IMAGE_URL)));
+				bi.setAvailability(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AVAILABILITY)));
+				bi.setHidden(1==c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_FLAG_HIDE)));
+				bi.setOwned(1==c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_FLAG_OWNED)));
+				//bi.set(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_LAST_UPDATE)));
+				bi.setVolume(c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
 
 				bs.addBook(bi);
 			}
