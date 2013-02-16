@@ -1,30 +1,32 @@
 package jp.tande.android.comicwatcher;
 
-import java.util.List;
-
 import jp.tande.android.comicwatcher.api.ImageLoader;
-import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
-import jp.tande.android.comicwatcher.db.DatabaseManager;
+import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import adapters.BookSeriesAdapter;
+import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ContentUris;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class TopListActivity extends Activity {
-	private static final String TAG ="TopListActivity";
+public class TopListActivity extends Activity  implements LoaderCallbacks<Cursor>{
+	private static final String TAG = TopListActivity.class.getSimpleName();
 	
 	private ListView listFollows;
 	private BookSeriesAdapter followsAdapter;
@@ -62,7 +64,6 @@ public class TopListActivity extends Activity {
         b.setTitle("宇宙3兄弟 ( 2 ) 限定版");
         */
         
-        ImageLoader.initInstance(new Handler());
         loader = ImageLoader.getInstance();
         
         listFollows = (ListView) findViewById(R.id.list_follows);
@@ -73,20 +74,21 @@ public class TopListActivity extends Activity {
         listFollows.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
-				BookSeries bs = followsAdapter.getItem(position);
+				BookSeries bs = BookSeries.fromCursor( (Cursor) followsAdapter.getItem(position) );
 				Intent i = new Intent(TopListActivity.this, DetailActivity.class);
 				i.putExtra("data", bs);
 				startActivity(i);
 			}
 		});
         
-        DatabaseManager.initializeInstance(this);
+        //DatabaseManager.initializeInstance(this);
+        getLoaderManager().initLoader(0, null, this);
     }
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-    	BookSeries bs = followsAdapter.getItem(info.position);
+    	BookSeries bs = BookSeries.fromCursor( (Cursor) followsAdapter.getItem(info.position) );
     	menu.setHeaderTitle(bs.getTitle());
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.top_list_item_context, menu);
@@ -94,19 +96,22 @@ public class TopListActivity extends Activity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-    	BookSeries bs = followsAdapter.getItem(info.position);
+    	BookSeries bs = BookSeries.fromCursor( (Cursor) followsAdapter.getItem(info.position) );
     	switch( item.getItemId() ){
     		case R.id.series_remove:
     			Log.d(TAG, "deleting series " + bs.getTitle() + " sid:" + bs.getSeriesId());
     			if( bs.getSeriesId() > 0 ){
-    				DatabaseManager.getInstance().removeBookSeries(bs.getSeriesId());
-    				reloadFollows();
+    				getContentResolver().delete(ContentUris.withAppendedId(Contract.Follows.ContentUri, bs.getSeriesId()), null, null);
+    				//TODO: remove follows
+    				//DatabaseManager.getInstance().removeBookSeries(bs.getSeriesId());
+    				//reloadFollows();
     			}
     			break;
     	}
     	return false;
     }
 
+    /* TODO: reload
     private void reloadFollows(){
     	DatabaseManager db = DatabaseManager.getInstance();
     	followsAdapter.clear();
@@ -115,10 +120,11 @@ public class TopListActivity extends Activity {
         	followsAdapter.add(bs);
 		}
     }
+    */
     
     @Override
     protected void onResume() {
-    	reloadFollows();
+    	//reloadFollows();
     	super.onResume();
     }
     
@@ -151,4 +157,32 @@ public class TopListActivity extends Activity {
     	}
     	return true;
     }
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Log.d(TAG,"onCreateLoader");
+		return new CursorLoader(this, Contract.Follows.ContentUri, null, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+		// TODO Auto-generated method stub
+		Log.d(TAG,"onLoadFinished : " + c);
+		followsAdapter.swapCursor(c);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		// TODO Auto-generated method stub
+		Log.d(TAG,"onLoaderReset");
+		followsAdapter.swapCursor(null);
+	}
+	
+	@Override
+	protected void onPause() {
+		if( isFinishing() ){
+			if( loader != null )loader.cancelAll();
+		}
+		super.onPause();
+	}
 }

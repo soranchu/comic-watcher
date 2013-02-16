@@ -29,7 +29,7 @@ public class DatabaseManager extends ContentProvider{
 
 	private static final String AUTHORITY = PKG + ".provider";
 
-	private static class Contract{
+	public static class Contract{
 		public static class Follows {
 			public static final String TABLE = "follows";
 			public static final Uri ContentUri = Uri.parse("content://" + AUTHORITY + "/" + TABLE);
@@ -43,6 +43,9 @@ public class DatabaseManager extends ContentProvider{
 				public static final String COL_LAST_UPDATE = "last_update";
 				public static final String COL_VOLUMES = "volumes";
 				public static final String COL_OWNED_COUNT = "owned_count";
+				public static final String COL_IMAGE_URL = "image_url";
+				public static final String COL_LATEST_SALES_DATE = "latest_sales_date";
+				public static final String COL_AVAILABILITY = "availability";
 				public static final String COL_TOTAL_NOT_IGNORED_COUNT = "total_count";
 			}
 		}
@@ -105,12 +108,11 @@ public class DatabaseManager extends ContentProvider{
 		private static final String TAG = "DatabaseHelper";
 		
 		private static final String DB_NAME = "database.db";
-		private static final int VERSION = 4;
+		private static final int VERSION = 6;
 
 		
 		public DatabaseHelper(Context context) {
 			super(context, DB_NAME, null, VERSION);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -125,6 +127,9 @@ public class DatabaseManager extends ContentProvider{
 					+ Contract.Follows.Columns.COL_LAST_UPDATE + " long not null, "
 					+ Contract.Follows.Columns.COL_VOLUMES + " integer,"
 					+ Contract.Follows.Columns.COL_OWNED_COUNT + " integer default 0," 
+					+ Contract.Follows.Columns.COL_IMAGE_URL + " text, "
+					+ Contract.Follows.Columns.COL_LATEST_SALES_DATE + " text, "
+					+ Contract.Follows.Columns.COL_AVAILABILITY + " integer default 0, "
 					+ Contract.Follows.Columns.COL_TOTAL_NOT_IGNORED_COUNT + " integer default 0)" );
 			db.execSQL(
 					"create table " + Contract.Books.TABLE +" ("	
@@ -198,14 +203,122 @@ public class DatabaseManager extends ContentProvider{
 		throw new UnsupportedOperationException("unknown uri :" +uri.toString());
 	}
 	
-	private Uri insertBooks(Uri uri, ContentValues values) {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public int bulkInsert(Uri uri, ContentValues[] values) {
+		int match = matchUri(uri);
+		switch(match){
+		case MATCH_FOLLOWS:
+		case MATCH_FOLLOWS_ID:
+			return super.bulkInsert(uri, values);
+/*		case MATCH_BOOKS:
+		case MATCH_BOOKS_ID:
+			return insertBooks(uri, values);*/
+		case MATCH_FOLLOWS_BOOKS:
+		case MATCH_FOLLOWS_BOOKS_ID:
+			return insertBooks(uri, values);
+		}
+		throw new UnsupportedOperationException("unknown uri :" +uri.toString());
+	}
+	
+	private int insertBooks(Uri uri, ContentValues[] values) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		db.beginTransaction();
+		int count = 0;
+		try{
+			for (ContentValues v : values) {
+				insertBooks(uri, v, db);
+				count++;
+			}
+			updateFollowsLatest(uri.getPathSegments().get(1), db);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+		return count;
 	}
 
-	private Uri insertFollows(Uri uri, ContentValues values) {
-		// TODO Auto-generated method stub
-		return null;
+	private Uri insertBooks(Uri uri, ContentValues v) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+		db.beginTransaction();
+		Uri ret = null;
+		try{
+			ret = insertBooks(uri, v, db);
+			updateFollowsLatest(uri.getPathSegments().get(1), db);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+		return ret;
+	}
+	
+	private Uri insertBooks(Uri uri, ContentValues v, SQLiteDatabase db){
+
+		Log.d(TAG,"inserting into " +Contract.Books.TABLE + " values:" + v.toString());
+		long booksId = db.replace(Contract.Books.TABLE, null, v);
+		getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(Contract.Books.ContentUri, booksId), null);
+		
+		ContentValues fb = new ContentValues();
+		fb.put(Contract.FollowsBooks.Columns.COL_FOLLOWS_ID, uri.getPathSegments().get(1));
+		fb.put(Contract.FollowsBooks.Columns.COL_BOOKS_ID, booksId);
+		
+		Log.d(TAG,"inserting into " +Contract.FollowsBooks.TABLE + " values:" + fb.toString());
+		db.insert(Contract.FollowsBooks.TABLE, null, fb);
+		Uri ret = ContentUris.withAppendedId(uri, booksId);
+		getContext().getContentResolver().notifyChange(ret, null);
+		
+		//TODO update follows row:latestVolume,latestSalesDate and notifyChanges()
+			
+		return ret;
+	}
+	
+	private void updateFollowsLatest(String followsId, SQLiteDatabase db){
+		Cursor c = null;
+		String query = "select " +
+					"B." +Contract.Books.Columns.COL_VOLUME + 
+					", B." + Contract.Books.Columns.COL_SALES_DATE +
+					", B." + Contract.Books.Columns.COL_IMAGE_URL +
+					", B." + Contract.Books.Columns.COL_AVAILABILITY +
+				" from " + Contract.Books.TABLE + " as B " +
+				" left join " + Contract.FollowsBooks.TABLE + " as FB " +
+						" on B."+Contract.Books.Columns._ID + "= FB." + Contract.FollowsBooks.Columns.COL_BOOKS_ID +
+				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?" +
+				" order by B." + Contract.Books.Columns.COL_VOLUME + " DESC" +
+				" limit 1";
+		
+		c = db.rawQuery(query, new String[]{followsId} );
+		Log.d(TAG,"updateFollowsLatest : " + query + " ret:" + c.getCount());
+		if ( c.moveToFirst() ){
+			Log.d(TAG,"updateFollowsLatest : volume:" + c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
+			Log.d(TAG,"updateFollowsLatest : sales :" + c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+			ContentValues v = new ContentValues();
+			v.put(Contract.Follows.Columns.COL_LATEST_SALES_DATE, c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+			v.put(Contract.Follows.Columns.COL_VOLUMES, c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
+			v.put(Contract.Follows.Columns.COL_AVAILABILITY, c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_AVAILABILITY)));
+			v.put(Contract.Follows.Columns.COL_IMAGE_URL, c.getString(c.getColumnIndex(Contract.Books.Columns.COL_IMAGE_URL)));
+			
+			db.update(Contract.Follows.TABLE, v, BaseColumns._ID + " = ?" , new String[]{followsId});
+			Uri returnUri = ContentUris.withAppendedId(Contract.Follows.ContentUri, Long.parseLong(followsId));
+			getContext().getContentResolver().notifyChange(returnUri, null);
+		}
+	}
+
+	private Uri insertFollows(Uri uri, ContentValues v) {
+		SQLiteDatabase db = helper.getWritableDatabase();
+
+		db.beginTransaction();
+		long ret = 0;
+		try{
+			Log.d(TAG,"inserting into " +Contract.Follows.TABLE + " values:" + v.toString());
+			ret = db.replace(Contract.Follows.TABLE, null, v);
+			db.setTransactionSuccessful();
+		}finally{
+			db.endTransaction();
+		}
+		
+	
+		Uri returnUri = ContentUris.withAppendedId(Contract.Follows.ContentUri, ret);
+		getContext().getContentResolver().notifyChange(returnUri, null);
+		return returnUri;
 	}
 
 	@Override
@@ -227,22 +340,69 @@ public class DatabaseManager extends ContentProvider{
 		return null;
 	}
 	
+	private String buildSelection(Uri uri, String baseSelection){
+		if( uri.getPathSegments().size() > 1 ){
+			if( baseSelection != null ){
+				return BaseColumns._ID + " = ? AND (" + baseSelection +")";
+			}else{
+				return BaseColumns._ID + " = ?";
+			}
+		}
+		return baseSelection;
+	}
+	
+	private String[] buildSelectionArgs(Uri uri, String[] baseSelectionArgs){
+		if( uri.getPathSegments().size() > 1 ){
+			if( baseSelectionArgs != null ){
+				String[] args = new String[baseSelectionArgs.length+1];
+				args[0] = uri.getPathSegments().get(1);
+				System.arraycopy(baseSelectionArgs, 0, args, 1, baseSelectionArgs.length);
+				return args;
+			}else{
+				return new String[]{uri.getPathSegments().get(1)};
+			}
+		}
+		return baseSelectionArgs;
+	}
+	
 	private Cursor queryFollowBooks(Uri uri, String[] projection,
 			String selection, String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
-		return null;
+
+		String followsId = uri.getPathSegments().get(1);
+		
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		c = db.rawQuery("select *" +
+//				" B." + COL_ID + " as " + COL_ID + "," +
+				" from " + Contract.Books.TABLE + " as B " +
+				" left join " + Contract.FollowsBooks.TABLE + " as FB " +
+						" on B."+Contract.Books.Columns._ID +  "= FB." + Contract.FollowsBooks.Columns.COL_BOOKS_ID +
+				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?"
+				, new String[]{followsId} );
+		Log.d(TAG,"books count:" + c.getCount());
+		Log.d(TAG,"books cols:" + Arrays.deepToString(c.getColumnNames()));
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
 	}
 
 	private Cursor queryBooks(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		c = db.query(Contract.Books.TABLE, projection, buildSelection(uri, selection), buildSelectionArgs(uri, selectionArgs), 
+				/*groupBy*/null, /*having*/null, sortOrder);
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
 	}
 
 	private Cursor queryFollows(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
-		return null;
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		c = db.query(Contract.Follows.TABLE, projection, buildSelection(uri, selection), buildSelectionArgs(uri, selectionArgs), 
+				/*groupBy*/null, /*having*/null, sortOrder);
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
 	}
 
 	@Override
@@ -252,29 +412,29 @@ public class DatabaseManager extends ContentProvider{
 		switch(match){
 		case MATCH_FOLLOWS:
 		case MATCH_FOLLOWS_ID:
-			return updateFollows(uri, selection, selectionArgs);
+			return updateFollows(uri, values, selection, selectionArgs);
 		case MATCH_BOOKS:
 		case MATCH_BOOKS_ID:
-			return updateBooks(uri, selection, selectionArgs);
+			return updateBooks(uri, values, selection, selectionArgs);
 		case MATCH_FOLLOWS_BOOKS:
 		case MATCH_FOLLOWS_BOOKS_ID:
-			return updateFollowBooks(uri, selection, selectionArgs);
+			return updateFollowBooks(uri, values, selection, selectionArgs);
 		}
 		return 0;
 	}
 	
-	private int updateFollowBooks(Uri uri, String selection,
+	private int updateFollowBooks(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	private int updateBooks(Uri uri, String selection, String[] selectionArgs) {
+	private int updateBooks(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	private int updateFollows(Uri uri, String selection, String[] selectionArgs) {
+	private int updateFollows(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -348,7 +508,7 @@ public class DatabaseManager extends ContentProvider{
 		if( selection == null || selection.isEmpty()){
 			return append;
 		}
-		return selection + " AND " + append;
+		return selection + " AND (" + append + ")";
 	}
 	
 	private String[] appendSelectionArgs(String[] selectionArgs, String append){
@@ -381,7 +541,7 @@ public class DatabaseManager extends ContentProvider{
 		return null;
 	}
 
-	
+	@Deprecated
 	public long addBookSeries(BookSeries bs){
 		SQLiteDatabase db = helper.getWritableDatabase();
 		boolean update = false;
@@ -415,11 +575,13 @@ public class DatabaseManager extends ContentProvider{
 		return ret;
 	}
 	
+	@Deprecated
 	public void removeBookSeries(long seriesId){
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.delete(Contract.Follows.TABLE, BaseColumns._ID + "=?", new String[]{ String.valueOf(seriesId) });
 	}
 
+	@Deprecated
 	private void addBookAsSeries(SQLiteDatabase db, BookInfo bi, long seriesId, boolean isUpdate) {
 		ContentValues v = new ContentValues();
 		if( bi.getBookId() > 0 ){
@@ -456,6 +618,7 @@ public class DatabaseManager extends ContentProvider{
 		}
 	}
 	
+	@Deprecated
 	public List<BookSeries> querySeries(){
 		List<BookSeries> series = new ArrayList<BookSeries>();
 		
@@ -484,6 +647,9 @@ public class DatabaseManager extends ContentProvider{
 		}
 		return series;
 	}
+
+	
+	@Deprecated
 	public void populateSeries(BookSeries bs) {
 		SQLiteDatabase db = helper.getReadableDatabase();
 		Cursor c = null;

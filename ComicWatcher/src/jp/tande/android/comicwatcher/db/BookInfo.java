@@ -1,17 +1,17 @@
 package jp.tande.android.comicwatcher.db;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.graphics.Bitmap;
+import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.util.Log;
 
 public class BookInfo implements Serializable{
 	private static final long serialVersionUID = 1L;
-
-	private transient Bitmap thumb;
-	private transient boolean thumbRequested = false;
 	
 	private boolean owned = false;
 	private boolean hidden = false;
@@ -469,7 +469,7 @@ public class BookInfo implements Serializable{
 		private String reviewAverage;
 		private String booksGenreId;
 	}
-	private Item item;
+	private Item item = new Item();
 	private String baseTitle;
 	private String titlePostFix;
 	private int volume;
@@ -497,7 +497,7 @@ public class BookInfo implements Serializable{
 			for (int i = 0; i<=m.groupCount() ; i++) {
 				Log.d(TAG, "m:["+ m.group(i)+"]");
 			}*/
-			Log.d(TAG, "match title ["+ baseTitle +"] + vol:" + volume + " post:" + titlePostFix);
+			//Log.d(TAG, "match title ["+ baseTitle +"] + vol:" + volume + " post:" + titlePostFix);
 			
 		}
 		if(baseTitle == null ){
@@ -736,26 +736,6 @@ public class BookInfo implements Serializable{
 		return true;
 	}
 
-
-	public Bitmap getThumb() {
-		return thumb;
-	}
-
-
-	public void setThumb(Bitmap thumb) {
-		this.thumb = thumb;
-	}
-
-
-	public boolean isThumbRequested() {
-		return thumbRequested;
-	}
-
-
-	public void setThumbRequested(boolean thumbRequested) {
-		this.thumbRequested = thumbRequested;
-	}
-	
 	public boolean isOnSale(){
 		return ! "5".equals(getAvailability());
 	}
@@ -788,5 +768,53 @@ public class BookInfo implements Serializable{
 
 	void setBookId(long bookId) {
 		this.bookId = bookId;
+	}
+
+
+	public ContentValues toContentValues() {
+		ContentValues v = new ContentValues();
+
+		if( getBookId() > 0 ){
+			v.put(Contract.Books.Columns._ID, getBookId());
+		}
+		
+		v.put(Contract.Books.Columns.COL_TITLE, getTitle());
+		v.put(Contract.Books.Columns.COL_SUB_TITLE, getSubTitle());
+		v.put(Contract.Books.Columns.COL_SERIES, getSeriesName());
+		v.put(Contract.Books.Columns.COL_AUTHOR, getAuthor());
+		v.put(Contract.Books.Columns.COL_PUBLISHER, getPublisherName());
+		v.put(Contract.Books.Columns.COL_ISBN, getIsbn());
+		v.put(Contract.Books.Columns.COL_SALES_DATE, getSalesDate());
+		v.put(Contract.Books.Columns.COL_URL, getItemUrl());
+		v.put(Contract.Books.Columns.COL_AFF_URL, getAffiliateUrl());
+		v.put(Contract.Books.Columns.COL_IMAGE_URL, getMediumImageUrl());
+		v.put(Contract.Books.Columns.COL_AVAILABILITY, getAvailability());
+		v.put(Contract.Books.Columns.COL_FLAG_HIDE, isHidden());
+		v.put(Contract.Books.Columns.COL_FLAG_OWNED, isOwned());
+		v.put(Contract.Books.Columns.COL_LAST_UPDATE, new Date().getTime());
+		v.put(Contract.Books.Columns.COL_VOLUME, getVolume());
+
+		return v;
+	}
+
+	public static BookInfo fromCursor(Cursor c) {
+		BookInfo bi = new BookInfo();
+		bi.setBookId(c.getLong(c.getColumnIndex(Contract.Books.Columns._ID)));
+		bi.setTitle(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_TITLE)));
+		bi.setSubTitle(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SUB_TITLE)));
+		bi.setSeriesName(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SERIES)));
+		bi.setAuthor(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AUTHOR)));
+		bi.setPublisherName(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_PUBLISHER)));
+		bi.setIsbn(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_ISBN)));
+		bi.setSalesDate(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+		bi.setItemUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_URL)));
+		bi.setAffiliateUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AFF_URL)));
+		bi.setMediumImageUrl(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_IMAGE_URL)));
+		bi.setAvailability(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_AVAILABILITY)));
+		bi.setHidden(1==c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_FLAG_HIDE)));
+		bi.setOwned(1==c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_FLAG_OWNED)));
+		//bi.set(c.getString(c.getColumnIndex(Contract.Books.Columns.COL_LAST_UPDATE)));
+		bi.setVolume(c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
+		return bi;
 	}
 }

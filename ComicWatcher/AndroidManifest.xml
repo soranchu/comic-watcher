@@ -4,7 +4,7 @@
     android:versionName="1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="11"
         android:targetSdkVersion="16" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -24,6 +24,7 @@
         </activity>
         <activity android:name="AddItemActivity" android:label="@string/add_item_title"></activity>
         <activity android:name="DetailActivity" android:label="@string/item_detail_title"></activity>
+        <provider android:authorities="jp.tande.android.comicwatcher.provider" android:name=".db.DatabaseManager"></provider>
     </application>
 
 </manifest>

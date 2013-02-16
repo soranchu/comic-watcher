@@ -9,7 +9,7 @@ public class BookSearchResponse {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((Items == null) ? 0 : Items.hashCode());
+		result = prime * result + ((items == null) ? 0 : items.hashCode());
 		result = prime * result + carrier;
 		result = prime * result + count;
 		result = prime * result + first;
@@ -28,10 +28,10 @@ public class BookSearchResponse {
 		if (getClass() != obj.getClass())
 			return false;
 		BookSearchResponse other = (BookSearchResponse) obj;
-		if (Items == null) {
-			if (other.Items != null)
+		if (items == null) {
+			if (other.items != null)
 				return false;
-		} else if (!Items.equals(other.Items))
+		} else if (!items.equals(other.items))
 			return false;
 		if (carrier != other.carrier)
 			return false;
@@ -54,7 +54,7 @@ public class BookSearchResponse {
 		return "BookSearchResponse [count=" + count + ", page=" + page
 				+ ", first=" + first + ", last=" + last + ", hits=" + hits
 				+ ", carrier=" + carrier + ", pageCount=" + pageCount
-				+ ", Items=" + Items + "]";
+				+ ", Items=" + items + "]";
 	}
 	public int getCount() {
 		return count;
@@ -99,10 +99,10 @@ public class BookSearchResponse {
 		this.pageCount = pageCount;
 	}
 	public List<BookInfo> getItems() {
-		return Items;
+		return items;
 	}
 	public void setItems(List<BookInfo> items) {
-		Items = items;
+		this.items = items;
 	}
 	private int count;
 	private int page;
@@ -111,5 +111,5 @@ public class BookSearchResponse {
 	private int hits;
 	private int carrier;
 	private int pageCount;
-	private List<BookInfo> Items;
+	private List<BookInfo> items;
 }

@@ -4,9 +4,17 @@ import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import jp.tande.android.comicwatcher.db.DatabaseManager;
+import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import adapters.DetailListAdapter;
+import adapters.DetailListArrayAdapter;
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class DetailActivity extends Activity {
+public class DetailActivity extends Activity implements LoaderCallbacks<Cursor> {
 	private static final String TAG ="DetailActivity";
 	
 	private TextView txtTitle;
@@ -37,6 +45,12 @@ public class DetailActivity extends Activity {
 	private BookSeries bookSeries;
 	private ImageLoader loader;
 	private DetailListAdapter detailListAdapter;
+	private DetailListArrayAdapter detailListArrayAdapter;
+	
+	/**
+	 * preview mode: showing search result ( not from database )
+	 */
+	private boolean isPreviewMode = true;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +65,6 @@ public class DetailActivity extends Activity {
 
         loader = ImageLoader.getInstance();
         
-        detailListAdapter = new DetailListAdapter(this, loader);
         /*
         listDetail.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -63,7 +76,6 @@ public class DetailActivity extends Activity {
 				startActivity(i);
 			}
         });*/
-        listDetail.setAdapter(detailListAdapter);
         //listDetail.setDrawSelectorOnTop(true);
         registerForContextMenu(listDetail);
         
@@ -72,39 +84,51 @@ public class DetailActivity extends Activity {
         txtTitle.setText(bookSeries.getTitle());
         txtAuthor.setText(bookSeries.getAuthor());
         txtSeries.setText(bookSeries.getPublisher());//TODO change to series
+        Log.d(TAG,"onCreate : " + bookSeries);
+        
         if( ! bookSeries.isPoplulated() ){
-        	DatabaseManager.getInstance().populateSeries(bookSeries);
-        	
+        	Log.d(TAG,"onCreate : using DetailListAdapter");
+        	isPreviewMode = false;
+            detailListAdapter = new DetailListAdapter(this, loader);
+            listDetail.setAdapter(detailListAdapter);
+            getLoaderManager().initLoader(0, null, this);
+        }else{
+        	Log.d(TAG,"onCreate : using DetailListArrayAdapter");
+        	isPreviewMode = true;
+        	detailListArrayAdapter = new DetailListArrayAdapter(this, loader);
+            listDetail.setAdapter(detailListArrayAdapter);
+            
+            for (BookInfo bi : bookSeries.getBooks()) {
+    			 detailListArrayAdapter.add(bi);
+    		}
         }
-        if( bookSeries.getLatest() != null ){
-        	String url = bookSeries.getLatest().getMediumImageUrl();
-        	if( url != null ){
-        		loader.queue(url, new ImageLoader.ImageLoaderListener() {
-					
-					@Override
-					public void onLoadFinished(Bitmap bmp) {
-						imgThumb.setImageBitmap(bmp);
-					}
-				});
-        	}
-        	if( bookSeries.getLatest().isOnSale() ){
+
+        if( bookSeries.getImageUrl() != null ){
+        	String url = bookSeries.getImageUrl();
+       		loader.queue(url, imgThumb );
+
+        	if( bookSeries.isLatestOnSale() ){
         		btnReserve.setVisibility(View.INVISIBLE);
         	}else{
         		btnReserve.setText(String.format(getResources().getText(R.string.txt_reserve).toString(),bookSeries.getLatestVolume()));
         	}
         }
-        
-        for (BookInfo bi : bookSeries.getBooks()) {
-			 detailListAdapter.add(bi);
-		}
-        
+
+    }
+    
+    private BookInfo getItem(int position){
+    	if( detailListAdapter != null ){
+    		return BookInfo.fromCursor((Cursor) detailListAdapter.getItem(position));
+    	}else{
+    		return detailListArrayAdapter.getItem(position);
+    	}
     }
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     	//super.onCreateContextMenu(menu, v, menuInfo);
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-    	BookInfo bi = detailListAdapter.getItem(info.position);
+    	BookInfo bi = getItem(info.position);
     	menu.setHeaderTitle(bi.getTitle());
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.detail_list_item_context, menu);
@@ -112,7 +136,7 @@ public class DetailActivity extends Activity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-    	BookInfo bi = detailListAdapter.getItem(info.position);
+    	BookInfo bi = getItem(info.position);
     	switch( item.getItemId() ){
     		case R.id.menu_item_purchase:
     			startPurchasePageBrowseActivity(bi);
@@ -134,6 +158,10 @@ public class DetailActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail_list, menu);
+        
+        if( !isPreviewMode ){
+        	menu.findItem(R.id.menu_follow).setVisible(false);
+        }
         return true;
     }
     
@@ -141,15 +169,23 @@ public class DetailActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	Log.d(TAG, "menu item selected item:" + item.getItemId() );
-    	DatabaseManager db = DatabaseManager.getInstance();
+    	
+    	ContentValues v = bookSeries.toContentValues();
+    	ContentValues[] books = bookSeries.booksToContentValues();
+    	
+    	//DatabaseManager db = DatabaseManager.getInstance();
     	int id = item.getItemId();
     	switch(id){
     	case R.id.menu_follow:
-    		db.addBookSeries(bookSeries);
+        	Uri ret = getContentResolver().insert(Contract.Follows.ContentUri, v);
+        	Uri booksUri = ret.buildUpon().appendPath(Contract.Books.TABLE).build();
+        	Log.d(TAG,"onOptionsItemSelected : bulk inserting :" + booksUri);
+        	getContentResolver().bulkInsert(booksUri, books);
     		setResult(RESULT_OK);
     		finish();
     		break;
     	case R.id.menu_unfollow:
+    		getContentResolver().delete(ContentUris.withAppendedId(Contract.Follows.ContentUri,bookSeries.getSeriesId() ), null, null);
     		setResult(RESULT_OK);
     		finish();
     		break;
@@ -161,4 +197,32 @@ public class DetailActivity extends Activity {
     protected void onDestroy() {
     	super.onDestroy();
     }
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Uri uri = ContentUris.withAppendedId(Contract.Follows.ContentUri, bookSeries.getSeriesId())
+				.buildUpon().appendPath(Contract.Books.TABLE).build();
+		Log.d(TAG,"onCreateLoader : " + uri);
+		return new CursorLoader(this, uri, null, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> arg0, Cursor c) {
+		detailListAdapter.swapCursor(c);
+		
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		detailListAdapter.swapCursor(null);
+		
+	}
+	
+	@Override
+	protected void onPause() {
+		if( isFinishing() ){
+			if( loader != null )loader.cancelAll();
+		}
+		super.onPause();
+	}
 }

@@ -148,5 +148,11 @@ public class AddItemActivity extends Activity {
         //getMenuInflater().inflate(R.menu.top_list, menu);
         return true;
     }
-    
+    @Override
+    protected void onPause() {
+		if( isFinishing() ){
+			//loader.cancelAll();
+		}
+    	super.onPause();
+    }
 }
