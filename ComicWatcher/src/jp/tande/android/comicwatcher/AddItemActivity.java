@@ -2,11 +2,11 @@ package jp.tande.android.comicwatcher;
 
 import java.util.List;
 
+import jp.tande.android.comicwatcher.adapters.AutoCompleteKeywordAdapter;
+import jp.tande.android.comicwatcher.adapters.BookSeriesSearchResultAdapter;
 import jp.tande.android.comicwatcher.api.BooksApi;
 import jp.tande.android.comicwatcher.api.BooksApi.SearchResultListener;
 import jp.tande.android.comicwatcher.db.BookSeries;
-import adapters.AutoCompleteKeywordAdapter;
-import adapters.BookSeriesSearchResultAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

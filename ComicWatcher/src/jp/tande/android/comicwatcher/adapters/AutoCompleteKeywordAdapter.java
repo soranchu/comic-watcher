@@ -1,4 +1,4 @@
-package adapters;
+package jp.tande.android.comicwatcher.adapters;
 
 import java.util.ArrayList;
 

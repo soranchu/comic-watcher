@@ -1,11 +1,11 @@
 package jp.tande.android.comicwatcher;
 
+import jp.tande.android.comicwatcher.adapters.DetailListAdapter;
+import jp.tande.android.comicwatcher.adapters.DetailListArrayAdapter;
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
-import adapters.DetailListAdapter;
-import adapters.DetailListArrayAdapter;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -139,12 +139,26 @@ public class DetailActivity extends FragmentActivity implements LoaderCallbacks<
     			startPurchasePageBrowseActivity(bi);
     			return true;
     		case R.id.menu_remove:
+    			removeBook(bi);
     			break;
     	}
     	return false;
     }
     
-    private void startPurchasePageBrowseActivity(BookInfo bi){
+    private void removeBook(BookInfo bi) {
+		bi.setOwned(false);
+		bi.setHidden(true);
+		if( bi.getBookId() > 0 ){
+			ContentValues v = new ContentValues();
+			v.put(Contract.Books.Columns.COL_FLAG_OWNED, 0);
+			v.put(Contract.Books.Columns.COL_FLAG_HIDE, 1);
+			getContentResolver().update(ContentUris.withAppendedId(Contract.Books.ContentUri, bi.getBookId()), v, null, null);
+		}else{
+			detailListArrayAdapter.remove(bi);
+		}
+	}
+
+	private void startPurchasePageBrowseActivity(BookInfo bi){
 		String url = bi.getItemUrl();
 		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url) );
 		startActivity(i);

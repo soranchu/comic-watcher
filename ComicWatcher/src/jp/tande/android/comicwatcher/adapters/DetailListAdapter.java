@@ -1,4 +1,4 @@
-package adapters;
+package jp.tande.android.comicwatcher.adapters;
 
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookInfo;

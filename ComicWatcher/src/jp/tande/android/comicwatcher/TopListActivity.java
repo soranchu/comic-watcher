@@ -1,9 +1,9 @@
 package jp.tande.android.comicwatcher;
 
+import jp.tande.android.comicwatcher.adapters.BookSeriesAdapter;
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
-import adapters.BookSeriesAdapter;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;

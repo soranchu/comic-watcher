@@ -269,7 +269,6 @@ public class DatabaseManager extends ContentProvider{
 	}
 	
 	private void updateFollowsLatest(String followsId, SQLiteDatabase db){
-		Cursor c = null;
 		String query = "select " +
 					"B." +Contract.Books.Columns.COL_VOLUME + 
 					", B." + Contract.Books.Columns.COL_SALES_DATE +
@@ -281,17 +280,23 @@ public class DatabaseManager extends ContentProvider{
 				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?" +
 				" order by B." + Contract.Books.Columns.COL_VOLUME + " DESC" +
 				" limit 1";
+		String queryOwned = "select sum(B.owned) AS owned, count(1) - sum(B.hide) AS row_count" +
+				" from " + Contract.Books.TABLE + " as B " +
+				" left join " + Contract.FollowsBooks.TABLE + " as FB " +
+						" on B."+Contract.Books.Columns._ID + "= FB." + Contract.FollowsBooks.Columns.COL_BOOKS_ID +
+				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?";
 		
-		c = db.rawQuery(query, new String[]{followsId} );
-		Log.d(TAG,"updateFollowsLatest : " + query + " ret:" + c.getCount());
-		if ( c.moveToFirst() ){
-			Log.d(TAG,"updateFollowsLatest : volume:" + c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
-			Log.d(TAG,"updateFollowsLatest : sales :" + c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+		Cursor latestCursor = db.rawQuery(query, new String[]{followsId} );
+		Cursor ownedCursor = db.rawQuery(queryOwned, new String[]{followsId} );
+		Log.d(TAG,"updateFollowsLatest : " + query + " ret:" + latestCursor.getCount());
+		if ( latestCursor.moveToFirst() && ownedCursor.moveToFirst() ){
 			ContentValues v = new ContentValues();
-			v.put(Contract.Follows.Columns.COL_LATEST_SALES_DATE, c.getString(c.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
-			v.put(Contract.Follows.Columns.COL_VOLUMES, c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
-			v.put(Contract.Follows.Columns.COL_AVAILABILITY, c.getInt(c.getColumnIndex(Contract.Books.Columns.COL_AVAILABILITY)));
-			v.put(Contract.Follows.Columns.COL_IMAGE_URL, c.getString(c.getColumnIndex(Contract.Books.Columns.COL_IMAGE_URL)));
+			v.put(Contract.Follows.Columns.COL_LATEST_SALES_DATE, latestCursor.getString(latestCursor.getColumnIndex(Contract.Books.Columns.COL_SALES_DATE)));
+			v.put(Contract.Follows.Columns.COL_VOLUMES, latestCursor.getInt(latestCursor.getColumnIndex(Contract.Books.Columns.COL_VOLUME)));
+			v.put(Contract.Follows.Columns.COL_AVAILABILITY, latestCursor.getInt(latestCursor.getColumnIndex(Contract.Books.Columns.COL_AVAILABILITY)));
+			v.put(Contract.Follows.Columns.COL_IMAGE_URL, latestCursor.getString(latestCursor.getColumnIndex(Contract.Books.Columns.COL_IMAGE_URL)));
+			v.put(Contract.Follows.Columns.COL_OWNED_COUNT, ownedCursor.getInt(ownedCursor.getColumnIndex("owned")));
+			v.put(Contract.Follows.Columns.COL_TOTAL_NOT_IGNORED_COUNT, ownedCursor.getInt(ownedCursor.getColumnIndex("row_count")));
 			
 			db.update(Contract.Follows.TABLE, v, BaseColumns._ID + " = ?" , new String[]{followsId});
 			Uri returnUri = ContentUris.withAppendedId(Contract.Follows.ContentUri, Long.parseLong(followsId));
@@ -334,7 +339,7 @@ public class DatabaseManager extends ContentProvider{
 		case MATCH_FOLLOWS_BOOKS_ID:
 			return queryFollowBooks(uri, projection, selection, selectionArgs, sortOrder);
 		}
-		return null;
+		throw new UnsupportedOperationException("not supported query uri:" + uri.toString() );
 	}
 	
 	private String buildSelection(Uri uri, String baseSelection){
@@ -365,6 +370,7 @@ public class DatabaseManager extends ContentProvider{
 	private Cursor queryFollowBooks(Uri uri, String[] projection,
 			String selection, String[] selectionArgs, String sortOrder) {
 
+		//TODO ignore projection, selection and sort
 		String followsId = uri.getPathSegments().get(1);
 		
 		SQLiteDatabase db = helper.getReadableDatabase();
@@ -374,8 +380,9 @@ public class DatabaseManager extends ContentProvider{
 				" from " + Contract.Books.TABLE + " as B " +
 				" left join " + Contract.FollowsBooks.TABLE + " as FB " +
 						" on B."+Contract.Books.Columns._ID +  "= FB." + Contract.FollowsBooks.Columns.COL_BOOKS_ID +
-				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?"
-				, new String[]{followsId} );
+				" where FB." + Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + " = ?" +
+						" AND B." +Contract.Books.Columns.COL_FLAG_HIDE + " = ?"
+				, new String[]{followsId,"0"} );
 		Log.d(TAG,"books count:" + c.getCount());
 		Log.d(TAG,"books cols:" + Arrays.deepToString(c.getColumnNames()));
 		c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -415,11 +422,11 @@ public class DatabaseManager extends ContentProvider{
 		case MATCH_FOLLOWS_BOOKS_ID:
 			return updateBooks(uri, values, selection, selectionArgs);
 		case MATCH_FOLLOWS_BOOKS:
-			return updateFollowBooks(uri, values, selection, selectionArgs);
+			//return updateFollowBooks(uri, values, selection, selectionArgs);
 		}
-		return 0;
+		throw new UnsupportedOperationException("not supported update uri:" + uri.toString() );
 	}
-	
+	/*
 	private int updateFollowBooks(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
 		SQLiteDatabase db = helper.getWritableDatabase();
@@ -439,7 +446,7 @@ public class DatabaseManager extends ContentProvider{
 		}
 		return count;
 	}
-
+*/
 	private int updateBooks(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		int count;
@@ -483,7 +490,7 @@ public class DatabaseManager extends ContentProvider{
 		case MATCH_FOLLOWS_BOOKS_ID:
 			return deleteFollowBooks(uri, selection, selectionArgs);
 		}
-		throw new UnsupportedOperationException("not supported uri:" + uri.toString() );
+		throw new UnsupportedOperationException("not supported delete uri:" + uri.toString() );
 	}
 	private int deleteFollowBooks(Uri uri, String selection,
 			String[] selectionArgs) {
