@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 public class DetailListArrayAdapter extends ArrayAdapter<BookInfo> {
+	@SuppressWarnings("unused")
 	private static final String TAG = DetailListArrayAdapter.class.getSimpleName();
 	private ImageLoader loader;
 	private DetailListLayoutLoader layoutLoader;

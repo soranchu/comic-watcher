@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
 public class BookInfo implements Serializable{
 	private static final long serialVersionUID = 1L;
@@ -35,6 +34,7 @@ public class BookInfo implements Serializable{
 		this.volume = vol;
 	}
 
+	@SuppressWarnings("unused")
 	private static final String TAG="BookInfo";
 	public static class Item implements Serializable{
 		private static final long serialVersionUID = 1L;
@@ -486,7 +486,7 @@ public class BookInfo implements Serializable{
 //	private static Pattern pat = Pattern.compile("(.*)(\\（｜（)巻?([0-9]+|[０-９]+)巻?(\\)|）)");
 	public void parseTitle(){
 		String t = getTitle();
-		Log.d(TAG,"parse:" + t);
+		//Log.d(TAG,"parse:" + t);
 		Matcher m = pat.matcher(t);
 		if( m.matches() ){
 			baseTitle = m.group(1);

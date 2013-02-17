@@ -2,12 +2,8 @@ package jp.tande.android.comicwatcher.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.http.client.utils.URIUtils;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -105,6 +101,7 @@ public class DatabaseManager extends ContentProvider{
     }
 
 	private class DatabaseHelper extends SQLiteOpenHelper {
+		@SuppressWarnings("hiding")
 		private static final String TAG = "DatabaseHelper";
 		
 		private static final String DB_NAME = "database.db";
@@ -410,14 +407,14 @@ public class DatabaseManager extends ContentProvider{
 			String[] selectionArgs) {
 		int match = matchUri(uri);
 		switch(match){
-		case MATCH_FOLLOWS:
+		//case MATCH_FOLLOWS:
 		case MATCH_FOLLOWS_ID:
 			return updateFollows(uri, values, selection, selectionArgs);
-		case MATCH_BOOKS:
+		//case MATCH_BOOKS:
 		case MATCH_BOOKS_ID:
+		case MATCH_FOLLOWS_BOOKS_ID:
 			return updateBooks(uri, values, selection, selectionArgs);
 		case MATCH_FOLLOWS_BOOKS:
-		case MATCH_FOLLOWS_BOOKS_ID:
 			return updateFollowBooks(uri, values, selection, selectionArgs);
 		}
 		return 0;
@@ -425,18 +422,51 @@ public class DatabaseManager extends ContentProvider{
 	
 	private int updateFollowBooks(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db = helper.getWritableDatabase();
+		
+		String followId = uri.getPathSegments().get(1);
+		Cursor c = db.query(Contract.FollowsBooks.TABLE, null, 
+				Contract.FollowsBooks.Columns.COL_FOLLOWS_ID + "= ?", 
+				new String[]{followId}, null, null, null);
+		int count = 0;
+		while( c.moveToNext() ){
+			count += db.update(Contract.Books.TABLE, values, appendSelectionClause(selection, BaseColumns._ID + " = ?"), 
+					appendSelectionArgs(selectionArgs, String.valueOf( c.getInt(c.getColumnIndex(BaseColumns._ID))) ) );
+		}
+		Log.d(TAG,"updateFollowBooks : " + uri + " v:" + values + " ret:"+count);
+		if( count > 0 ){
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
+		return count;
 	}
 
 	private int updateBooks(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db = helper.getWritableDatabase();
+		int count;
+		count = db.update(Contract.Books.TABLE, values, buildSelection(uri, selection), buildSelectionArgs(uri, selectionArgs) );
+		Log.d(TAG,"updateBooks : " + uri + " v:" + values + " ret:"+count);
+		if( count > 0 ){
+			getContext().getContentResolver().notifyChange(uri, null);
+			String bookId = uri.getPathSegments().get(1);
+			Cursor c = db.query(Contract.FollowsBooks.TABLE, null, 
+					Contract.FollowsBooks.Columns.COL_BOOKS_ID + "= ?", 
+					new String[]{bookId}, null, null, null);
+			while( c.moveToNext() ){
+				updateFollowsLatest( String.valueOf(c.getInt(c.getColumnIndex(Contract.FollowsBooks.Columns.COL_FOLLOWS_ID))), db);
+			}
+		}
+		return count;
 	}
 
 	private int updateFollows(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db = helper.getWritableDatabase();
+		int count;
+		count = db.update(Contract.Follows.TABLE, values, buildSelection(uri, selection), buildSelectionArgs(uri, selectionArgs) );
+		Log.d(TAG,"updateFollows : " + uri + " v:" + values + " ret:"+count);
+		if( count > 0 ){
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
+		return count;
 	}
 
 	@Override

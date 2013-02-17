@@ -7,19 +7,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-
-import net.arnx.jsonic.JSON;
-import net.arnx.jsonic.JSONException;
 
 import jp.tande.android.comicwatcher.api.credentials.Credential;
 import jp.tande.android.comicwatcher.api.data.BookSearchResponse;
 import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
-
+import net.arnx.jsonic.JSON;
+import net.arnx.jsonic.JSONException;
 import android.os.Handler;
 import android.util.Log;
 
@@ -33,17 +30,20 @@ public class BooksApi {
 	
 	private static final String APP_ID = Credential.APP_ID;
 	
-	private static final int MAX_PRICE = 1000;
-	
 	private static final String SERVICE_URL = "https://app.rakuten.co.jp/services/api/BooksBook/Search/20121128";
 	private static final String PARAM_APP_ID = "applicationId";
+	@SuppressWarnings("unused")
 	private static final String PARAM_AFF_ID = "affiliateId";
 	private static final String PARAM_TITLE = "title";
+	@SuppressWarnings("unused")
 	private static final String PARAM_AUTHOR = "author";
+	@SuppressWarnings("unused")
 	private static final String PARAM_PUBLISHER = "publisherName";
+	@SuppressWarnings("unused")
 	private static final String PARAM_HITS = "hits";
 	private static final String PARAM_PAGE = "page";
 	private static final String PARAM_OUT_OF_STOCK = "outOfStockFlag";
+	@SuppressWarnings("unused")
 	private static final String VALUE_HIDE_OUT_OF_STOCK = "0";
 	private static final String VALUE_SHOW_OUT_OF_STOCK = "1";
 	private static final String PARAM_GENRE = "booksGenreId";
@@ -51,10 +51,14 @@ public class BooksApi {
 	private static final String PARAM_SIZE = "size";
 	private static final String VALUE_SIZE_COMIC = "9";
 	private static final String PARAM_SORT = "sort";
+	@SuppressWarnings("unused")
 	private static final String VALUE_SORT_STD = "standard";
 	private static final String VALUE_SORT_REL_ASC = "-releaseDate";
+	@SuppressWarnings("unused")
 	private static final String VALUE_SORT_REL_DESC = "+releaseDate";
+	@SuppressWarnings("unused")
 	private static final String PARAM_CARRIER = "carrier";
+	@SuppressWarnings("unused")
 	private static final String PARAM_ELEMENTS = "elements";
 
 	private Handler handler;

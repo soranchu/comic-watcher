@@ -1,15 +1,11 @@
 package jp.tande.android.comicwatcher;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import jp.tande.android.comicwatcher.api.BooksApi;
 import jp.tande.android.comicwatcher.api.BooksApi.SearchResultListener;
-import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import adapters.AutoCompleteKeywordAdapter;
-import adapters.BookSeriesAdapter;
 import adapters.BookSeriesSearchResultAdapter;
 import android.app.Activity;
 import android.content.Context;
@@ -22,13 +18,12 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class AddItemActivity extends Activity {

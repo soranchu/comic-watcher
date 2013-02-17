@@ -1,47 +1,48 @@
 package adapters;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import jp.tande.android.comicwatcher.R;
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookInfo;
+import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class DetailListLayoutLoader {
 	private LayoutInflater inflater;
-	private Map<String, Boolean> ownedFlags = new HashMap<String, Boolean>();
+	//private Map<String, Boolean> ownedFlags = new HashMap<String, Boolean>();
 
 	public DetailListLayoutLoader(Context context){
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
+	
+	
 	private boolean isItemOwned(BookInfo bi){
 		//TODO load from db
-		Boolean b = ownedFlags.get(bi.getIsbn());
-		if( b != null ){
-			return b;
-		}
-		return false;
+		return bi.isOwned();
 	}
 	
-	private void setItemOwned(BookInfo bi, boolean owned){
+	private void setItemOwned(Context context, BookInfo bi, boolean owned){
 		//TODO store db
-		ownedFlags.put(bi.getIsbn(), owned);
+		if( bi.getBookId() > 0 ){
+			ContentValues v = new ContentValues();
+			v.put(Contract.Books.Columns.COL_FLAG_OWNED, owned ? 1 : 0 );
+			context.getContentResolver().update(ContentUris.withAppendedId(Contract.Books.ContentUri, bi.getBookId()), v, null, null);
+		}
+		bi.setOwned(owned);
 	}
 	
 
-	public void bindView(View view, Context context, final BookInfo bi, ImageLoader loader, final BaseAdapter adapter) {
+	public void bindView(View view, final Context context, final BookInfo bi, ImageLoader loader, final BaseAdapter adapter) {
 
 		TextView txtVolume = (TextView) view.findViewById(R.id.txt_detail_series_num);
 		TextView txtRelease = (TextView) view.findViewById(R.id.txt_detail_scheduled_date);
@@ -82,13 +83,13 @@ public class DetailListLayoutLoader {
 		chkOwn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				setItemOwned(bi, isChecked);
+				setItemOwned(context, bi, isChecked);
 			}
 		});
 		chkReserved.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				setItemOwned(bi, isChecked);
+				setItemOwned(context, bi, isChecked);
 			}
 		});
 		imgThumb.setImageBitmap(null);

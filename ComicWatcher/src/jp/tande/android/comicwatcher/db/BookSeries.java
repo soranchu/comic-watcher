@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.AvoidXfermode;
-
-import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 
 public class BookSeries implements Serializable{
 	private static final long serialVersionUID = 7893319474968721635L;

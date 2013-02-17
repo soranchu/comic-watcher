@@ -4,15 +4,14 @@ import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import adapters.BookSeriesAdapter;
-import android.app.Activity;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentUris;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -25,7 +24,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class TopListActivity extends Activity  implements LoaderCallbacks<Cursor>{
+public class TopListActivity extends FragmentActivity  implements LoaderCallbacks<Cursor>{
 	private static final String TAG = TopListActivity.class.getSimpleName();
 	
 	private ListView listFollows;
@@ -82,7 +81,7 @@ public class TopListActivity extends Activity  implements LoaderCallbacks<Cursor
 		});
         
         //DatabaseManager.initializeInstance(this);
-        getLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
     }
     
     @Override
@@ -185,4 +184,5 @@ public class TopListActivity extends Activity  implements LoaderCallbacks<Cursor
 		}
 		super.onPause();
 	}
+
 }

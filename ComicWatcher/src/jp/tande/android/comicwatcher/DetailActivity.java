@@ -3,22 +3,19 @@ package jp.tande.android.comicwatcher;
 import jp.tande.android.comicwatcher.api.ImageLoader;
 import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
-import jp.tande.android.comicwatcher.db.DatabaseManager;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import adapters.DetailListAdapter;
 import adapters.DetailListArrayAdapter;
-import android.app.Activity;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -32,7 +29,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class DetailActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class DetailActivity extends FragmentActivity implements LoaderCallbacks<Cursor> {
 	private static final String TAG ="DetailActivity";
 	
 	private TextView txtTitle;
@@ -91,7 +88,7 @@ public class DetailActivity extends Activity implements LoaderCallbacks<Cursor> 
         	isPreviewMode = false;
             detailListAdapter = new DetailListAdapter(this, loader);
             listDetail.setAdapter(detailListAdapter);
-            getLoaderManager().initLoader(0, null, this);
+            getSupportLoaderManager().initLoader(0, null, this);
         }else{
         	Log.d(TAG,"onCreate : using DetailListArrayAdapter");
         	isPreviewMode = true;

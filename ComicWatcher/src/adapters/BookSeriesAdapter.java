@@ -2,15 +2,13 @@ package adapters;
 
 import jp.tande.android.comicwatcher.R;
 import jp.tande.android.comicwatcher.api.ImageLoader;
-import jp.tande.android.comicwatcher.db.BookInfo;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.support.v4.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,7 +18,7 @@ public class BookSeriesAdapter extends CursorAdapter{
 	private LayoutInflater inflator;
 	
 	public BookSeriesAdapter(Context ctx, ImageLoader loader){
-		super(ctx, null, 0);//R.layout.top_list_item);
+		super(ctx, null, false);//R.layout.top_list_item);
 		this.loader = loader;
 		this.context = ctx;
 		this.inflator = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

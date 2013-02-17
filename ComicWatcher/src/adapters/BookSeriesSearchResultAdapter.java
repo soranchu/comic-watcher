@@ -1,14 +1,11 @@
 package adapters;
 
 import jp.tande.android.comicwatcher.R;
-import jp.tande.android.comicwatcher.R.id;
-import jp.tande.android.comicwatcher.R.layout;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class BookSeriesSearchResultAdapter extends ArrayAdapter<BookSeries> {
