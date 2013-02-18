@@ -1,6 +1,9 @@
 package jp.tande.android.comicwatcher.api;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.tande.android.comicwatcher.R;
 import android.graphics.Bitmap;
@@ -20,7 +25,10 @@ import android.widget.ImageView;
 
 public class ImageLoader {
 	private static final String TAG="ImageLoader";
-	
+	private Pattern pattern = Pattern.compile(".*\\/(.*\\.(?:jpg|png)).*");
+	private String cachePath;
+	private byte[] buffer = new byte[4096];
+
 	private final class Loader implements Runnable {
 		private final Task task;
 
@@ -33,17 +41,42 @@ public class ImageLoader {
 			URL u;
 			try {
 				u = new URL(task.url);
-				Log.d(TAG, "loading image : " + task.url);
-				final Bitmap bmp = BitmapFactory.decodeStream(u.openStream());
+
+				//http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/0471/04715420.jpg?_ex=120x120
+
+				Matcher m = pattern.matcher(u.getPath());
+				String filename = null;
+				if( m.matches() ){
+					filename = m.group(1);
+				}
+				Log.d(TAG,"cache path : " + cachePath + filename);
+				Bitmap bmp;
+				File f = new File(cachePath+filename);
+				if( filename != null && ! f.exists() ){
+					Log.d(TAG, "loading image : " + task.url);
+					FileOutputStream fos = new FileOutputStream(f);
+					InputStream is = u.openStream();
+					int readBytes = 0;
+					synchronized (buffer) {
+						while ( (readBytes = is.read(buffer)) != -1 ){
+							fos.write(buffer, 0, readBytes);
+						}
+					}
+					fos.close();
+					//bmp = BitmapFactory.decodeStream(u.openStream());
+					
+				}
+				Log.d(TAG,"loading from local : " + f);
+				bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
+				
+				final Bitmap finalBmp = bmp;
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						ImageCache.Value v = new ImageCache.Value(bmp);
-						v.targetViews.addAll(task.targetViews);
-						synchronized (cache) {
-							cache.put(task.url, v);
-						}
+						ImageCache.Value v = new ImageCache.Value(finalBmp);
 						synchronized (tasks) {
+							v.targetViews.addAll(task.targetViews);
+							cache.put(task.url, v);
 							tasks.remove(task);
 							for (WeakReference<ImageView> wl : task.targetViews) {
 								ImageView l = wl.get();
@@ -51,7 +84,7 @@ public class ImageLoader {
 									Log.d(TAG,"run : notify load finished " +task.url );
 									//l.onLoadFinished(task.url, bmp);
 									if( task.url.equals(l.getTag(R.id.tag_imageview_url))){
-										l.setImageBitmap(bmp);
+										l.setImageBitmap(finalBmp);
 									}
 								}
 							}
@@ -92,8 +125,6 @@ public class ImageLoader {
 			}
 		}
 		
-		public interface CacheExpiredListener{
-		}
 		public ImageCache(int maxSize){
 			super(maxSize, 0.75f, true);
 			this.maxSize = maxSize;
@@ -103,16 +134,25 @@ public class ImageLoader {
 		protected boolean removeEldestEntry(Entry<String, Value> eldest) {
 			if ( size() > maxSize ){
 				Value v = eldest.getValue();
+				boolean using = false;
 				for (WeakReference<ImageView> l : v.targetViews) {
 					ImageView imageView = l.get();
 					if( imageView != null ) {
-						Log.d(TAG,"removeEldestEntry : notify cache expired " + eldest.getKey() );
-						imageView.setImageBitmap(null);
-						//listener.onExpired(eldest.getKey(), v.bmp);
+						//Log.d(TAG,"removeEldestEntry : notify cache expired " + eldest.getKey() );
+						//imageView.setImageBitmap(null);
+						using = true;
+						break;
 					}
 				}
-				v.bmp.recycle();
-				return true;
+				if( ! using ){
+					Log.d(TAG,"removeEldestEntry : " + eldest.getKey());
+					if(v.bmp !=null)v.bmp.recycle();
+					return true;
+				}else{
+					Log.d(TAG,"removeEldestEntry cancel count : " + size() + " "+eldest.getKey());
+					get(eldest.getKey());//touch value to change order
+					//TODO remove other item to keep maxsize
+				}
 			}
 			return false;
 		}
@@ -162,7 +202,13 @@ public class ImageLoader {
 	}
 	public synchronized void queue(final String url, final ImageView targetView){
 		targetView.setTag(R.id.tag_imageview_url, url);
-		synchronized (cache) {
+		
+		if( cachePath == null ){
+			cachePath = targetView.getContext().getCacheDir().getAbsolutePath() + "/images/";
+			new File(cachePath).mkdirs();
+		}
+		
+		synchronized (tasks) {
 			ImageCache.Value cacheVal = cache.get(url);
 			if( cacheVal != null ){
 				cacheVal.targetViews.add(new WeakReference<ImageView>(targetView));
@@ -171,12 +217,13 @@ public class ImageLoader {
 				targetView.setImageBitmap(cacheVal.bmp);
 				return;
 			}
-		}
-		
-		synchronized (tasks) {
+
+			
 			Task task = tasks.get(url);
 			if( task == null ){
 				task = new Task(targetView, url);
+				tasks.put(url, task);
+				
 				Runnable r = new Loader(task);
 				Log.d(TAG,"queue : submit request " + url);
 				pendingTasks.add( executor.submit(r) );
@@ -190,11 +237,14 @@ public class ImageLoader {
 	}
 	
 	public synchronized void cancelAll(){
-		synchronized (pendingTasks) {
-			for (Future<?> f : pendingTasks) {
-				f.cancel(true);
+		synchronized (tasks) {
+			tasks.clear();
+			synchronized (pendingTasks) {
+				for (Future<?> f : pendingTasks) {
+					f.cancel(true);
+				}
+				pendingTasks.clear();
 			}
-			pendingTasks.clear();
 		}
 	}
 }

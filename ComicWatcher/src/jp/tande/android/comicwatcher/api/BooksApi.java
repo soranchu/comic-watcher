@@ -47,7 +47,7 @@ public class BooksApi {
 	private static final String VALUE_HIDE_OUT_OF_STOCK = "0";
 	private static final String VALUE_SHOW_OUT_OF_STOCK = "1";
 	private static final String PARAM_GENRE = "booksGenreId";
-	private static final String VALUE_GENRE_COMIC = "001001";//TODO: fix genre to 001001
+	private static final String VALUE_GENRE_COMIC = "001";//TODO: fix genre to 001001
 	private static final String PARAM_SIZE = "size";
 	private static final String VALUE_SIZE_COMIC = "9";
 	private static final String PARAM_SORT = "sort";
@@ -76,7 +76,7 @@ public class BooksApi {
 		params.put(PARAM_GENRE, VALUE_GENRE_COMIC);
 		params.put(PARAM_OUT_OF_STOCK, VALUE_SHOW_OUT_OF_STOCK);
 		params.put(PARAM_SORT, VALUE_SORT_REL_ASC);
-		params.put(PARAM_SIZE, VALUE_SIZE_COMIC);//only comic
+		//params.put(PARAM_SIZE, VALUE_SIZE_COMIC);//only comic
 		URL url;
 
 		url = buildUrl(SERVICE_URL, params);
