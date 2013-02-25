@@ -8,8 +8,8 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -25,7 +25,7 @@ import android.widget.ImageView;
 
 public class ImageLoader {
 	private static final String TAG="ImageLoader";
-	private Pattern pattern = Pattern.compile(".*\\/(.*\\.(?:jpg|png)).*");
+	private Pattern pattern = Pattern.compile(".*\\/(.*\\.(?:jpg|png|gif)).*");
 	private String cachePath;
 	private byte[] buffer = new byte[4096];
 
@@ -39,65 +39,87 @@ public class ImageLoader {
 		@Override
 		public void run() {
 			URL u;
+			Bitmap bmp = null;
+
 			try {
 				u = new URL(task.url);
 
 				//http://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/0471/04715420.jpg?_ex=120x120
-
-				Matcher m = pattern.matcher(u.getPath());
-				String filename = null;
-				if( m.matches() ){
-					filename = m.group(1);
-				}
-				Log.d(TAG,"cache path : " + cachePath + filename);
-				Bitmap bmp;
-				File f = new File(cachePath+filename);
-				if( filename != null && ! f.exists() ){
-					Log.d(TAG, "loading image : " + task.url);
-					FileOutputStream fos = new FileOutputStream(f);
-					InputStream is = u.openStream();
-					int readBytes = 0;
-					synchronized (buffer) {
-						while ( (readBytes = is.read(buffer)) != -1 ){
-							fos.write(buffer, 0, readBytes);
+				File f = createCacheFile(cachePath, u);
+				if( f != null ){
+					try{
+						if( ! f.exists() ){
+							Log.d(TAG, "loading image : " + task.url);
+							InputStream is = u.openStream();
+							writeStreamToFile(is, f);
+							is.close();
+							//bmp = BitmapFactory.decodeStream(u.openStream());
+						}else{
+							Log.d(TAG,"loading from local : " + f);
 						}
+						bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
+					}catch(IOException e){
+						//TODO save to cache error
 					}
-					fos.close();
-					//bmp = BitmapFactory.decodeStream(u.openStream());
-					
+				}else{
+					Log.w(TAG,"run : cache file path parse error! load from network. " + task.url );
+					Log.d(TAG, "loading image : " + task.url);
+					try {
+						bmp = BitmapFactory.decodeStream(u.openStream());
+					} catch (IOException e) {
+						// TODO decode stream error
+					}
 				}
-				Log.d(TAG,"loading from local : " + f);
-				bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
-				
-				final Bitmap finalBmp = bmp;
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						ImageCache.Value v = new ImageCache.Value(finalBmp);
-						synchronized (tasks) {
-							v.targetViews.addAll(task.targetViews);
-							cache.put(task.url, v);
-							tasks.remove(task);
-							for (WeakReference<ImageView> wl : task.targetViews) {
-								ImageView l = wl.get();
-								if( l != null ){
-									Log.d(TAG,"run : notify load finished " +task.url );
-									//l.onLoadFinished(task.url, bmp);
-									if( task.url.equals(l.getTag(R.id.tag_imageview_url))){
-										l.setImageBitmap(finalBmp);
-									}
-								}
+			} catch (MalformedURLException e) {
+				// TODO invalid url
+				e.printStackTrace();
+			}finally{
+				setBitmapToViews(task, bmp);
+			}
+
+		}
+		
+		private File createCacheFile(String basePath, URL u){
+			Matcher m = pattern.matcher(u.getPath());
+			if( m.matches() ){
+				Log.d(TAG,"cache path : " + basePath + m.group(1));
+				return new File(basePath + m.group(1));
+			}
+			return null;
+		}
+		
+		private void writeStreamToFile(InputStream is, File out) throws IOException{
+			FileOutputStream fos = new FileOutputStream(out);
+			int readBytes = 0;
+			synchronized (buffer) {
+				while ( (readBytes = is.read(buffer)) != -1 ){
+					fos.write(buffer, 0, readBytes);
+				}
+			}
+			fos.close();
+		}
+		
+		private void setBitmapToViews(final Task task, final Bitmap bmp){
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					ImageCache.Value v = new ImageCache.Value( bmp );
+					synchronized (tasks) {
+						for (Iterator<WeakReference<ImageView>> itr = task.targetViews.iterator(); itr.hasNext();) {
+							ImageView imgView = itr.next().get();
+							if( imgView != null && task.url.equals(imgView.getTag(R.id.tag_imageview_url)) ){
+								Log.d(TAG,"run : notify load finished " +task.url );
+								imgView.setImageBitmap( bmp );
+							}else{
+								itr.remove();
 							}
 						}
+						v.targetViews.addAll(task.targetViews);
+						cache.put(task.url, v);
+						tasks.remove(task);
 					}
-				});
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				}
+			});
 		}
 	}
 
@@ -118,8 +140,8 @@ public class ImageLoader {
 		
 		public static class Value{
 			private Bitmap bmp;
-			private CopyOnWriteArrayList<WeakReference<ImageView>> targetViews 
-				= new CopyOnWriteArrayList<WeakReference<ImageView>>();
+			private ArrayList<WeakReference<ImageView>> targetViews 
+				= new ArrayList<WeakReference<ImageView>>();
 			public Value(Bitmap bmp){
 				this.bmp = bmp;
 			}
@@ -135,13 +157,13 @@ public class ImageLoader {
 			if ( size() > maxSize ){
 				Value v = eldest.getValue();
 				boolean using = false;
-				for (WeakReference<ImageView> l : v.targetViews) {
-					ImageView imageView = l.get();
-					if( imageView != null ) {
-						//Log.d(TAG,"removeEldestEntry : notify cache expired " + eldest.getKey() );
-						//imageView.setImageBitmap(null);
+				for (Iterator<WeakReference<ImageView>> itr = v.targetViews.iterator(); itr.hasNext();) {
+					ImageView imageView = itr.next().get();
+					if( imageView != null && eldest.getKey().equals(imageView.getTag(R.id.tag_imageview_url)) ){
 						using = true;
 						break;
+					}else{
+						itr.remove();
 					}
 				}
 				if( ! using ){
@@ -160,11 +182,11 @@ public class ImageLoader {
 
 	private class Task{
 		public Task(ImageView targetView, String url) {
-			this.targetViews  = new CopyOnWriteArrayList<WeakReference<ImageView>>();
+			this.targetViews  = new ArrayList<WeakReference<ImageView>>();
 			targetViews.add(new WeakReference<ImageView>(targetView) );
 			this.url = url;
 		}
-		CopyOnWriteArrayList<WeakReference<ImageView>> targetViews;
+		ArrayList<WeakReference<ImageView>> targetViews;
 		String url;
 	}
 	
