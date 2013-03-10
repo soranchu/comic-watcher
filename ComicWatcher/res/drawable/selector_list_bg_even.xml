@@ -3,8 +3,8 @@
 	<!-- Pressed -->
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/shape_list_background_pressed" />
+		android:drawable="@drawable/shape_list_bg_pressed_even" />
 	<!-- Normal -->
 	<item
-		android:drawable="@drawable/shape_list_background_normal" />
+		android:drawable="@drawable/shape_list_bg_normal_even" />
 </selector>

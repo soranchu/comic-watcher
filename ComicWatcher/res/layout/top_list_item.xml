@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_weight="1"
-    android:background="@drawable/selector_list_background" >
+    android:background="@drawable/selector_list_bg_odd" >
 
     <ImageView
         android:id="@+id/img_top_comic_thumb"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+		    <gradient
+		        android:startColor="@color/list_bg_top_normal_even"
+		        android:centerColor="@color/list_bg_top_normal_even"
+		        android:endColor="@color/list_bg_bottom_normal_even"
+		        android:angle="270" />
+		</shape>
+		<item>
+			<nine-patch android:src="@drawable/img_list_border" />
+    	</item>
+	</item>
+</layer-list>
