@@ -26,7 +26,7 @@ public class DetailListArrayAdapter extends ArrayAdapter<BookInfo> {
 			convertView = layoutLoader.newView(getContext(), parent);
 		}
 		BookInfo bi = getItem(position);
-		layoutLoader.bindView(convertView, getContext(), bi, loader, this);
+		layoutLoader.bindView(position, convertView, getContext(), bi, loader, this);
 		return convertView;
 	}
 	

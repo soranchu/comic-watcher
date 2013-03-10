@@ -16,6 +16,7 @@ public class BookSeriesAdapter extends CursorAdapter{
 	private ImageLoader loader;
 	private Context context;
 	private LayoutInflater inflator;
+	private int currentTargetViewIndex = -1;
 	
 	public BookSeriesAdapter(Context ctx, ImageLoader loader){
 		super(ctx, null, false);//R.layout.top_list_item);
@@ -90,6 +91,12 @@ public class BookSeriesAdapter extends CursorAdapter{
 		return convertView;
 	}
 	*/
+	
+	@Override
+	public View getView(int arg0, View arg1, ViewGroup arg2) {
+		currentTargetViewIndex = arg0;
+		return super.getView(arg0, arg1, arg2);
+	}
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
@@ -101,6 +108,13 @@ public class BookSeriesAdapter extends CursorAdapter{
 		TextView reserved = (TextView) view.findViewById(R.id.txt_top_reserved);
 		TextView notreserved = (TextView) view.findViewById(R.id.txt_top_non_reserved);
 		BookSeries bs = BookSeries.fromCursor(cursor);
+		
+		if( currentTargetViewIndex % 2 == 0){
+			view.setBackgroundResource(R.drawable.selector_list_bg_even);
+		}else{
+			view.setBackgroundResource(R.drawable.selector_list_bg_odd);
+		}
+		
 		title.setText( bs.getTitle() );
 		//v2.setText( bs.getBooks().size() + "冊 / " + bs.getAuthor() + " / " + bs.getPublisher() );
 		volumes.setText(String.format(getContext().getResources().getString(R.string.txt_series_num),

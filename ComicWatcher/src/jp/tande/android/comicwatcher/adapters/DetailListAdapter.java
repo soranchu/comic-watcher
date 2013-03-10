@@ -13,6 +13,7 @@ public class DetailListAdapter extends CursorAdapter {
 	private static final String TAG ="DetailListAdapter";
 	private ImageLoader loader;
 	private DetailListLayoutLoader layoutLoader;
+	private int currentTargetViewIndex = -1;
 	
 	public DetailListAdapter(Context context, ImageLoader loader) {
 		super(context, null, false);//R.layout.detail_list_item);
@@ -21,10 +22,16 @@ public class DetailListAdapter extends CursorAdapter {
 	}
 	
 	@Override
+	public View getView(int arg0, View arg1, ViewGroup arg2) {
+		currentTargetViewIndex = arg0;
+		return super.getView(arg0, arg1, arg2);
+	}
+	
+	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		BookInfo bi = BookInfo.fromCursor(cursor);
 		
-		layoutLoader.bindView(view, context, bi, loader, this);
+		layoutLoader.bindView(currentTargetViewIndex, view, context, bi, loader, this);
 	}
 
 		

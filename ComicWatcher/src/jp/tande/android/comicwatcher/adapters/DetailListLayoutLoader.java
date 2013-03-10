@@ -42,7 +42,7 @@ public class DetailListLayoutLoader {
 	}
 	
 
-	public void bindView(View view, final Context context, final BookInfo bi, ImageLoader loader, final BaseAdapter adapter) {
+	public void bindView(int index, View view, final Context context, final BookInfo bi, ImageLoader loader, final BaseAdapter adapter) {
 
 		TextView txtVolume = (TextView) view.findViewById(R.id.txt_detail_series_num);
 		TextView txtRelease = (TextView) view.findViewById(R.id.txt_detail_scheduled_date);
@@ -51,6 +51,13 @@ public class DetailListLayoutLoader {
 		final ImageView imgThumb = (ImageView) view.findViewById(R.id.img_detailitem_comic_thumb);
 		//final BookInfo bi = BookInfo.fromCursor(cursor);
 
+		if( index % 2 == 0){
+			view.setBackgroundResource(R.drawable.selector_list_bg_even);
+		}else{
+			view.setBackgroundResource(R.drawable.selector_list_bg_odd);
+		}
+
+		
 		txtVolume.setText(context.getString(R.string.txt_series_num, bi.getVolume() ));
 		if( ! bi.isOnSale() ){
 			if( bi.getTitlePostFix() != null ){
