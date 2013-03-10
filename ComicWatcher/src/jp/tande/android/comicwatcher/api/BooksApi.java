@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import jp.tande.android.comicwatcher.api.credentials.Credential;
@@ -53,9 +54,9 @@ public class BooksApi {
 	private static final String PARAM_SORT = "sort";
 	@SuppressWarnings("unused")
 	private static final String VALUE_SORT_STD = "standard";
-	private static final String VALUE_SORT_REL_ASC = "-releaseDate";
+	private static final String VALUE_SORT_RELEASEDATE_ASC = "-releaseDate";
 	@SuppressWarnings("unused")
-	private static final String VALUE_SORT_REL_DESC = "+releaseDate";
+	private static final String VALUE_SORT_RELEASEDATE_DESC = "+releaseDate";
 	@SuppressWarnings("unused")
 	private static final String PARAM_CARRIER = "carrier";
 	@SuppressWarnings("unused")
@@ -75,16 +76,35 @@ public class BooksApi {
 		params.put(PARAM_PAGE, Integer.toString(page) );
 		params.put(PARAM_GENRE, VALUE_GENRE_COMIC);
 		params.put(PARAM_OUT_OF_STOCK, VALUE_SHOW_OUT_OF_STOCK);
-		params.put(PARAM_SORT, VALUE_SORT_REL_ASC);
+		params.put(PARAM_SORT, VALUE_SORT_RELEASEDATE_ASC);
 		//params.put(PARAM_SIZE, VALUE_SIZE_COMIC);//only comic
+
+		return rawRequest(SERVICE_URL, params, BookSearchResponse.class);
+	}
+	
+	//TODO chagne to private
+	public BookSearchResponse requestTitle(String title, String author, int page) throws JSONException, IOException{
+		TreeMap<String, String> params = new TreeMap<String, String>();
+		params.put(PARAM_APP_ID, APP_ID);
+		params.put(PARAM_TITLE, title);
+		params.put(PARAM_AUTHOR, author);
+		params.put(PARAM_PAGE, Integer.toString(page) );
+		params.put(PARAM_OUT_OF_STOCK, VALUE_SHOW_OUT_OF_STOCK);
+		params.put(PARAM_SORT, VALUE_SORT_RELEASEDATE_ASC);
+		//params.put(PARAM_SIZE, VALUE_SIZE_COMIC);//only comic
+
+		return rawRequest(SERVICE_URL, params, BookSearchResponse.class);
+	}
+	
+	private <T> T rawRequest( String urlString, TreeMap<String, String> params, Class<? extends T>  clazz) throws IOException{
 		URL url;
 
-		url = buildUrl(SERVICE_URL, params);
+		url = buildUrl(urlString, params);
 		Log.d(TAG,"url:" + url);
 		
 		InputStream is = null;
 		is = url.openStream();
-		return JSON.decode(is,BookSearchResponse.class);
+		return JSON.decode(is, clazz);
 	}
 	
 	public void searchTitle(final String title, final SearchResultListener listener){

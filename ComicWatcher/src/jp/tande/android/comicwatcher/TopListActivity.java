@@ -2,6 +2,7 @@ package jp.tande.android.comicwatcher;
 
 import jp.tande.android.comicwatcher.adapters.BookSeriesAdapter;
 import jp.tande.android.comicwatcher.api.ImageLoader;
+import jp.tande.android.comicwatcher.api.ListUpdater;
 import jp.tande.android.comicwatcher.db.BookSeries;
 import jp.tande.android.comicwatcher.db.DatabaseManager.Contract;
 import android.content.ContentUris;
@@ -150,6 +151,10 @@ public class TopListActivity extends FragmentActivity  implements LoaderCallback
     		startActivity(new Intent(this,AddItemActivity.class));
     		break;
     	case R.id.menu_refresh:
+			{
+				ListUpdater updater = new ListUpdater(this);
+				updater.update();
+			}
     		break;
     	case R.id.menu_settings:
     		break;
