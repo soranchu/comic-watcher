@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#FFF</color>
+    <color name="white">#fff</color>
     <color name="black">#000</color>
 	<color name="gray_normal">#666</color>
 	<color name="gray_dark">#333</color>
-	<color name="gray_light">#CCC</color>
-	<color name="gray_light_alpha">#AACCCCCC</color>
+	<color name="gray_light">#ccc</color>
+	<color name="gray_light_alpha">#aacccccc</color>
 	<color name="green_normal">#6a8c18</color>
 	<color name="green_dark">#3a5c00</color>
 	<color name="red_normal">#d80d18</color>
 	<color name="red_dark">#be2219</color>
-	<color name="listbg_top_normal">#F6F6F6</color>
-	<color name="listbg_bottom_normal">#E3E3E3</color>
-	<color name="listbg_top_pressed">#AAF6F6F6</color>
-	<color name="listbg_bottom_pressed">#AAE3E3E3</color>
-	<color name="list_border_color">#CCC</color>
+	<color name="list_bg_top_normal_odd">#f0f0f0</color>
+	<color name="list_bg_bottom_normal_odd">#ebebeb</color>
+	<color name="list_bg_top_normal_even">#e6e6e6</color>
+	<color name="list_bg_bottom_normal_even">#e1e1e1</color>
+	<color name="list_bg_top_pressed">#aaf6f6f6</color>
+	<color name="list_bg_bottom_pressed">#aae3e3e3</color>
+	<color name="list_border_color">#ccc</color>
 </resources>
