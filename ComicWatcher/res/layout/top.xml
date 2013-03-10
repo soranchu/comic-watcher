@@ -16,7 +16,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/list_border_width"
-        android:background="@color/gray_light"
+        android:background="@color/list_border_color"
         android:orientation="vertical" >
 
     </LinearLayout>
