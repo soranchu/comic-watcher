@@ -10,9 +10,9 @@
 	<color name="green_dark">#3a5c00</color>
 	<color name="red_normal">#d80d18</color>
 	<color name="red_dark">#be2219</color>
-	<color name="list_bg_top_normal_odd">#f0f0f0</color>
+	<color name="list_bg_top_normal_odd">#ebebeb</color>
 	<color name="list_bg_bottom_normal_odd">#ebebeb</color>
-	<color name="list_bg_top_normal_even">#e6e6e6</color>
+	<color name="list_bg_top_normal_even">#e1e1e1</color>
 	<color name="list_bg_bottom_normal_even">#e1e1e1</color>
 	<color name="list_bg_top_pressed">#aaf6f6f6</color>
 	<color name="list_bg_bottom_pressed">#aae3e3e3</color>
