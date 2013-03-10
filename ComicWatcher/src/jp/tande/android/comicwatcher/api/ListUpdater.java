@@ -47,8 +47,12 @@ public class ListUpdater {
 						for (BookInfo bi : res.getItems()) {
 							bi.parseTitle();
 							Log.d(TAG,"update : title : " + bi.getTitle() );
-							if( bi.isValidIsbn() && bi.getVolume() > bs.getLatestVolume() ){
-								Log.d(TAG,"update : found new item : " + bi);
+							if( bi.isValidIsbn() ){
+								BookInfo inDb = getBookInfo(bi.getIsbn());
+								if( ( inDb == null || ( !inDb.isHidden() && !inDb.isOwned() ) ) 
+									&& bi.getVolume() > bs.getLatestVolume() ){
+									Log.d(TAG,"update : found new item : " + bi);
+								}
 							}
 						}
 					} catch (JSONException e) {
@@ -64,5 +68,19 @@ public class ListUpdater {
 		
 		new Thread(r).start();
 
+	}
+	
+	
+	BookInfo getBookInfo(String isbn){
+		Cursor c = null;
+		try{
+			c = context.getContentResolver().query(Contract.Books.ContentUri, null, Contract.Books.Columns.COL_ISBN + "=?", new String[]{isbn}, null);
+			if( c.moveToFirst() ){
+				return BookInfo.fromCursor(c);
+			}
+		}finally{
+			if( c != null )c.close();
+		}
+		return null;
 	}
 }

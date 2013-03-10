@@ -52,9 +52,9 @@ public class DetailListLayoutLoader {
 		//final BookInfo bi = BookInfo.fromCursor(cursor);
 
 		if( index % 2 == 0){
-			view.setBackgroundResource(R.drawable.selector_list_bg_even);
-		}else{
 			view.setBackgroundResource(R.drawable.selector_list_bg_odd);
+		}else{
+			view.setBackgroundResource(R.drawable.selector_list_bg_even);
 		}
 
 		

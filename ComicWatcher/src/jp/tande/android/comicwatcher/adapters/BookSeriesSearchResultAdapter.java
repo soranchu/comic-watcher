@@ -19,6 +19,12 @@ public class BookSeriesSearchResultAdapter extends ArrayAdapter<BookSeries> {
 		if( convertView == null ){
 			convertView = View.inflate(getContext(), R.layout.add_list_item, null);
 		}
+		if( position % 2 == 0){
+			convertView.setBackgroundResource(R.drawable.selector_list_bg_odd);
+		}else{
+			convertView.setBackgroundResource(R.drawable.selector_list_bg_even);
+		}
+
 		TextView v1 = (TextView) convertView.findViewById(R.id.txt_add_list_item_title);
 		TextView v2 = (TextView) convertView.findViewById(R.id.txt_add_list_item_sub);
 		BookSeries bs = getItem(position);

@@ -110,9 +110,9 @@ public class BookSeriesAdapter extends CursorAdapter{
 		BookSeries bs = BookSeries.fromCursor(cursor);
 		
 		if( currentTargetViewIndex % 2 == 0){
-			view.setBackgroundResource(R.drawable.selector_list_bg_even);
-		}else{
 			view.setBackgroundResource(R.drawable.selector_list_bg_odd);
+		}else{
+			view.setBackgroundResource(R.drawable.selector_list_bg_even);
 		}
 		
 		title.setText( bs.getTitle() );
