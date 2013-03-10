@@ -53,14 +53,14 @@
         android:textStyle="bold" />
 
     <CheckBox
-        android:id="@+id/checkBox_haved"
+        android:id="@+id/checkBox_ihave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:paddingRight="@dimen/padding_large"
-        android:text="@string/txt_haved"
+        android:text="@string/txt_ihave"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/gray_dark"
         android:textStyle="bold"

@@ -6,5 +6,10 @@
 	<dimen name="padding_large">12dp</dimen>
 	<dimen name="padding_xlarge">16dp</dimen>
 	<dimen name="list_border_width">1px</dimen>
+	<dimen name="btn_corners_radius">4dp</dimen>
+	<dimen name="btn_stroke_width">4dp</dimen>
+	<dimen name="btn_padding_leftright">12dp</dimen>
+	<dimen name="btn_padding_topbottom">8dp</dimen>
+	<dimen name="btn_height">30dp</dimen>
 </resources>
 

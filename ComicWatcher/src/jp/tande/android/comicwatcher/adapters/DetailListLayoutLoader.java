@@ -46,7 +46,7 @@ public class DetailListLayoutLoader {
 
 		TextView txtVolume = (TextView) view.findViewById(R.id.txt_detail_series_num);
 		TextView txtRelease = (TextView) view.findViewById(R.id.txt_detail_scheduled_date);
-		CheckBox chkOwn = (CheckBox) view.findViewById(R.id.checkBox_haved);
+		CheckBox chkOwn = (CheckBox) view.findViewById(R.id.checkBox_ihave);
 		CheckBox chkReserved = (CheckBox) view.findViewById(R.id.checkBox_reserved);
 		final ImageView imgThumb = (ImageView) view.findViewById(R.id.img_detailitem_comic_thumb);
 		//final BookInfo bi = BookInfo.fromCursor(cursor);

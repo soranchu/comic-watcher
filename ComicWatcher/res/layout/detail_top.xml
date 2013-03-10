@@ -21,7 +21,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/padding_medium" >
 
             <TextView
                 android:id="@+id/txt_detail_comicTitle"
@@ -48,6 +49,7 @@
                 android:id="@+id/txt_detail_publisher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/padding_large"
                 android:paddingRight="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_small"
                 android:text="モーニングKC"
@@ -57,7 +59,51 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/padding_large" >
+                android:paddingBottom="@dimen/padding_small"
+                android:paddingLeft="@dimen/padding_large"
+                android:paddingRight="@dimen/padding_large" >
+
+                <Button
+                    android:id="@+id/btn_ihaveall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/selector_btn_ihaveall"
+                    android:minHeight="@dimen/btn_height"
+                    android:minWidth="0dp"
+                    android:paddingBottom="@dimen/btn_padding_topbottom"
+                    android:paddingLeft="@dimen/btn_padding_leftright"
+                    android:paddingRight="@dimen/btn_padding_leftright"
+                    android:paddingTop="@dimen/btn_padding_topbottom"
+                    android:text="@string/btn_ihaveall"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <CheckBox
+                    android:id="@+id/checkBox_ihaveall"
+                    style="@android:style/Widget.Holo.CompoundButton.CheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:paddingRight="@dimen/padding_small"
+                    android:text="@string/txt_ihaveall"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/padding_small"
+                android:paddingLeft="@dimen/padding_large"
+                android:paddingRight="@dimen/padding_large" >
 
                 <Button
                     android:id="@+id/btn_reserve"
@@ -65,13 +111,13 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:background="@drawable/selector_btn_reserve"
-                    android:minHeight="0dp"
+                    android:minHeight="@dimen/btn_height"
                     android:minWidth="0dp"
-                    android:paddingBottom="@dimen/padding_medium"
-                    android:paddingLeft="@dimen/padding_xlarge"
-                    android:paddingRight="@dimen/padding_xlarge"
-                    android:paddingTop="@dimen/padding_medium"
-                    android:text="新刊予約"
+                    android:paddingBottom="@dimen/btn_padding_topbottom"
+                    android:paddingLeft="@dimen/btn_padding_leftright"
+                    android:paddingRight="@dimen/btn_padding_leftright"
+                    android:paddingTop="@dimen/btn_padding_topbottom"
+                    android:text="@string/btn_reserve"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/white"
                     android:textStyle="bold"
