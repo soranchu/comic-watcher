@@ -769,6 +769,10 @@ public class BookInfo implements Serializable{
 	void setBookId(long bookId) {
 		this.bookId = bookId;
 	}
+	
+	public String toShortString(){
+		return getTitle() + " ISBN:" + getIsbn();
+	}
 
 
 	public ContentValues toContentValues() {

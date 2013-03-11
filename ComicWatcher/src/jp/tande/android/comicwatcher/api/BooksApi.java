@@ -100,7 +100,7 @@ public class BooksApi {
 		URL url;
 
 		url = buildUrl(urlString, params);
-		Log.d(TAG,"url:" + url);
+		Log.d(TAG,"url:" + urlString+" "+params);
 		
 		InputStream is = null;
 		is = url.openStream();

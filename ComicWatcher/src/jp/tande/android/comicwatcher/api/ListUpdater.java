@@ -43,16 +43,18 @@ public class ListUpdater {
 			public void run() {
 				for (BookSeries bs : series) {
 					try {
-						BookSearchResponse res = api.requestTitle(bs.getTitle(), bs.getAuthor(), 1);
+						BookSearchResponse res = api.requestTitle(bs.getTitle().replace("/", " "), bs.getAuthor().replace("/", " "), 1);
 						for (BookInfo bi : res.getItems()) {
 							bi.parseTitle();
-							Log.d(TAG,"update : title : " + bi.getTitle() );
-							if( bi.isValidIsbn() ){
+							if( bi.isValidIsbn() && bi.getBaseTitle().equals(bs.getTitle()) ){
+								Log.d(TAG,"update : title : " + bi.toShortString() );
 								BookInfo inDb = getBookInfo(bi.getIsbn());
-								if( ( inDb == null || ( !inDb.isHidden() && !inDb.isOwned() ) ) 
-									&& bi.getVolume() > bs.getLatestVolume() ){
-									Log.d(TAG,"update : found new item : " + bi);
+								if(  inDb == null ){
+									Log.d(TAG,"update : found new item : " + bi.toShortString());
+									context.getContentResolver().insert(Contract.Follows.buildFollowBookUri(bs.getSeriesId()), bi.toContentValues());
 								}
+							}else{
+								Log.d(TAG,"update : exclude title : " + bi.toShortString() );
 							}
 						}
 					} catch (JSONException e) {

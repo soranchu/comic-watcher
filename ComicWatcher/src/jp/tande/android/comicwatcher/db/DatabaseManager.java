@@ -31,6 +31,10 @@ public class DatabaseManager extends ContentProvider{
 			public static final Uri ContentUri = Uri.parse("content://" + AUTHORITY + "/" + TABLE);
 			public static final String MimeType = BaseSingleMimeType+  PKG + "." + TABLE;
 			public static final String MimeTypes = BaseMultiMimeType + PKG + "." + TABLE;
+			
+			public static Uri buildFollowBookUri(long followsId){
+				return ContentUris.withAppendedId(ContentUri,followsId).buildUpon().appendPath(Books.TABLE).build();
+			}
 
 			public static class Columns implements BaseColumns{
 				public static final String COL_TITLE = "title";

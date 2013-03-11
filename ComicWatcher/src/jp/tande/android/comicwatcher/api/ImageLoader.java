@@ -24,10 +24,13 @@ import android.util.Log;
 import android.widget.ImageView;
 
 public class ImageLoader {
-	private static final String TAG="ImageLoader";
+	private static final String TAG = ImageLoader.class.getSimpleName();
+	
 	private Pattern pattern = Pattern.compile(".*\\/(.*\\.(?:jpg|png|gif)).*");
+	private static final long DISK_CACHE_EXPIRE_MS = 1000L * 60 * 60 * 24 * 90;//90 day
 	private String cachePath;
 	private byte[] buffer = new byte[4096];
+	private static boolean sDebug = false;
 
 	private final class Loader implements Runnable {
 		private final Task task;
@@ -48,14 +51,14 @@ public class ImageLoader {
 				File f = createCacheFile(cachePath, u);
 				if( f != null ){
 					try{
-						if( ! f.exists() ){
-							Log.d(TAG, "loading image : " + task.url);
+						if( ! f.exists() || f.lastModified() + DISK_CACHE_EXPIRE_MS < System.currentTimeMillis() ){
+							if( sDebug ) Log.d(TAG, "loading image : " + task.url);
 							InputStream is = u.openStream();
 							writeStreamToFile(is, f);
 							is.close();
 							//bmp = BitmapFactory.decodeStream(u.openStream());
 						}else{
-							Log.d(TAG,"loading from local : " + f);
+							if( sDebug ) Log.d(TAG,"loading from local : " + f);
 						}
 						bmp = BitmapFactory.decodeFile(f.getAbsolutePath());
 					}catch(IOException e){
@@ -63,7 +66,7 @@ public class ImageLoader {
 					}
 				}else{
 					Log.w(TAG,"run : cache file path parse error! load from network. " + task.url );
-					Log.d(TAG, "loading image : " + task.url);
+					if( sDebug ) Log.d(TAG, "loading image : " + task.url);
 					try {
 						bmp = BitmapFactory.decodeStream(u.openStream());
 					} catch (IOException e) {
@@ -82,7 +85,7 @@ public class ImageLoader {
 		private File createCacheFile(String basePath, URL u){
 			Matcher m = pattern.matcher(u.getPath());
 			if( m.matches() ){
-				Log.d(TAG,"cache path : " + basePath + m.group(1));
+				if( sDebug ) Log.d(TAG,"cache path : " + basePath + m.group(1));
 				return new File(basePath + m.group(1));
 			}
 			return null;
@@ -108,7 +111,7 @@ public class ImageLoader {
 						for (Iterator<WeakReference<ImageView>> itr = task.targetViews.iterator(); itr.hasNext();) {
 							ImageView imgView = itr.next().get();
 							if( imgView != null && task.url.equals(imgView.getTag(R.id.tag_imageview_url)) ){
-								Log.d(TAG,"run : notify load finished " +task.url );
+								if( sDebug ) Log.d(TAG,"run : notify load finished " +task.url );
 								imgView.setImageBitmap( bmp );
 							}else{
 								itr.remove();
@@ -167,7 +170,7 @@ public class ImageLoader {
 					}
 				}
 				if( ! using ){
-					Log.d(TAG,"removeEldestEntry : " + eldest.getKey());
+					if( sDebug ) Log.d(TAG,"removeEldestEntry : " + eldest.getKey());
 					if(v.bmp !=null)v.bmp.recycle();
 					return true;
 				}else{
@@ -218,7 +221,7 @@ public class ImageLoader {
 	}
 	
 	public void shutdown(){
-		Log.d(TAG,"shutdown");
+		if( sDebug ) Log.d(TAG,"shutdown");
 		executor.shutdown();
 		Log.d(TAG,"shutdown finished");
 	}
@@ -247,10 +250,10 @@ public class ImageLoader {
 				tasks.put(url, task);
 				
 				Runnable r = new Loader(task);
-				Log.d(TAG,"queue : submit request " + url);
+				if( sDebug ) Log.d(TAG,"queue : submit request " + url);
 				pendingTasks.add( executor.submit(r) );
 			}else{
-				Log.d(TAG,"queue : added listener to posted request " + url);
+				if( sDebug ) Log.d(TAG,"queue : added listener to posted request " + url);
 				task.targetViews.add(new WeakReference<ImageView>(targetView));
 				return;
 			}
