@@ -9,12 +9,14 @@
 	<color name="green_normal">#6a8c18</color>
 	<color name="green_dark">#3a5c00</color>
 	<color name="red_normal">#d80d18</color>
-	<color name="red_dark">#be2219</color>
+	<color name="red_dark">#aa2219</color>
 	<color name="list_bg_top_normal_odd">#ebebeb</color>
 	<color name="list_bg_bottom_normal_odd">#ebebeb</color>
 	<color name="list_bg_top_normal_even">#e1e1e1</color>
 	<color name="list_bg_bottom_normal_even">#e1e1e1</color>
-	<color name="list_bg_top_pressed">#aaf6f6f6</color>
-	<color name="list_bg_bottom_pressed">#aae3e3e3</color>
-	<color name="list_border_color">#ccc</color>
+	<color name="list_bg_top_pressed_odd">#aaebebeb</color>
+	<color name="list_bg_bottom_pressed_odd">#aaebebeb</color>
+	<color name="list_bg_top_pressed_even">#aae1e1e1</color>
+	<color name="list_bg_bottom_pressed_even">#aae1e1e1</color>
+	<color name="list_border_color">#bbb</color>
 </resources>

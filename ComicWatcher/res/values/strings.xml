@@ -19,6 +19,8 @@
     <string name="txt_release_date">%s</string>
     <string name="txt_non_reserved">未予約</string>
     <string name="txt_reserved">予約済</string>
-    <string name="txt_haved">持ってる</string>
-    <string name="txt_reserve">%s巻を予約する</string>
+    <string name="txt_ihave">持ってる</string>
+    <string name="txt_ihaveall">全巻持ってる</string>
+    <string name="btn_ihaveall">全巻持ってる</string>
+    <string name="btn_reserve">%s巻を予約する</string>
 </resources>

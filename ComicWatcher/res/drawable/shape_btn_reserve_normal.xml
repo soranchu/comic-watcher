@@ -2,33 +2,11 @@
 <shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
     <solid
         android:color="@color/green_normal" />
+    <!--
     <stroke
-		android:width="4dp"
+		android:width="@dimen/btn_stroke_width"
 		android:color="@color/gray_dark" />
+	-->
     <corners 
-        android:radius="6dp" />
+        android:radius="@dimen/btn_corners_radius" />
 </shape>
-<!--  
-<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:startColor="@color/green_normal"
-        android:centerColor="@color/green_normal"
-        android:endColor="@color/green_dark"
-        android:angle="270" />
-    <corners 
-        android:radius="8dp" />
-</shape>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-		<shape android:shape="rectangle">
-		    <gradient
-		        android:startColor="#FFF"
-		        android:endColor="#EEE"
-		        android:angle="270" />
-		</shape>	
-	</item>
-    <item>
-		<nine-patch android:src="@drawable/img_list_border" />
-    </item>
-</layer-list>
--->

@@ -3,8 +3,8 @@
 	<!-- Pressed -->
 	<item
 		android:state_pressed="true"
-		android:drawable="@drawable/shape_btn_reserve_pressed" />
+		android:drawable="@drawable/shape_btn_ihaveall_pressed" />
 	<!-- 通常時 -->
 	<item
-		android:drawable="@drawable/shape_btn_reserve_normal" />
+		android:drawable="@drawable/shape_btn_ihaveall_normal" />
 </selector>

@@ -107,7 +107,7 @@ public class DetailActivity extends FragmentActivity implements LoaderCallbacks<
         	if( bookSeries.isLatestOnSale() ){
         		btnReserve.setVisibility(View.INVISIBLE);
         	}else{
-        		btnReserve.setText(String.format(getResources().getText(R.string.txt_reserve).toString(),bookSeries.getLatestVolume()));
+        		btnReserve.setText(String.format(getResources().getText(R.string.btn_reserve).toString(),bookSeries.getLatestVolume()));
         	}
         }
 
