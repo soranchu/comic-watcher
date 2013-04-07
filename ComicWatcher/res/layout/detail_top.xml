@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <ListView
+        android:id="@+id/list_detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/gray_dark" >
+        android:background="@color/gray_light"
+        tools:listitem="@layout/detail_list_item" >
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/list_float_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray_dark"
+        android:clickable="true" >
 
         <ImageView
             android:id="@+id/img_detail_comic_thumb"
@@ -128,21 +138,4 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/list_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/gray_light"
-        tools:listitem="@layout/detail_list_item" >
-
-    </ListView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/list_border_width"
-        android:background="@color/list_border_color"
-        android:orientation="vertical" >
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

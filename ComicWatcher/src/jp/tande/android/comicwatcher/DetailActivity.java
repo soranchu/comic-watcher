@@ -19,13 +19,16 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -44,6 +47,11 @@ public class DetailActivity extends FragmentActivity implements LoaderCallbacks<
 	private DetailListAdapter detailListAdapter;
 	private DetailListArrayAdapter detailListArrayAdapter;
 	
+	private LinearLayout listFloatHeader;
+	private int maxHeaderHeight = 200;
+	private int minHeaderHeight = 120;
+	private boolean listScrolled = false;
+	
 	/**
 	 * preview mode: showing search result ( not from database )
 	 */
@@ -59,7 +67,54 @@ public class DetailActivity extends FragmentActivity implements LoaderCallbacks<
         imgThumb = (ImageView) findViewById(R.id.img_detail_comic_thumb);
         listDetail = (ListView) findViewById(R.id.list_detail);
         btnReserve= (Button) findViewById(R.id.btn_reserve);
+        listFloatHeader = (LinearLayout) findViewById(R.id.list_float_header);
+        listFloatHeader.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+			@Override
+			public void onLayoutChange(View v, int left, int top, int right,
+					int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+				if( !listScrolled ){
+					maxHeaderHeight = bottom - top;
+					if( detailListAdapter != null ){
+						detailListAdapter.setHeaderHeight(maxHeaderHeight);
+					}
+				}
+			}
+		});
+        
+        listFloatHeader.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				listDetail.smoothScrollToPositionFromTop(0, 0);
+			}
+		});
 
+        listDetail.setOnScrollListener(new AbsListView.OnScrollListener() {
+			
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				// TODO Auto-generated method stub
+				listScrolled = true;
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem,
+					int visibleItemCount, int totalItemCount) {
+				// TODO Auto-generated method stub
+				if( !listScrolled )return;
+				View header = detailListAdapter.getDummyHeaderView();
+				int headerBottom = minHeaderHeight;
+				if( header != null && header.isShown() ){
+					headerBottom = header.getBottom();
+					if( minHeaderHeight > headerBottom ){
+						headerBottom = minHeaderHeight;
+					}
+				}
+				listFloatHeader.getLayoutParams().height= headerBottom;
+				listFloatHeader.setLayoutParams( listFloatHeader.getLayoutParams() );
+				listFloatHeader.requestLayout();
+				
+			}
+		});
         loader = ImageLoader.getInstance();
         
         /*
@@ -87,6 +142,7 @@ public class DetailActivity extends FragmentActivity implements LoaderCallbacks<
         	Log.d(TAG,"onCreate : using DetailListAdapter");
         	isPreviewMode = false;
             detailListAdapter = new DetailListAdapter(this, loader);
+            detailListAdapter.setHeaderHeight(maxHeaderHeight);
             listDetail.setAdapter(detailListAdapter);
             getSupportLoaderManager().initLoader(0, null, this);
         }else{
