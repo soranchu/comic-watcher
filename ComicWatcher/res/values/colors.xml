@@ -8,6 +8,9 @@
 	<color name="gray_light_alpha">#aacccccc</color>
 	<color name="green_normal">#6a8c18</color>
 	<color name="green_dark">#3a5c00</color>
+	<color name="blue_default">#5cc4ea</color>
+	<color name="blue_normal">#3784ab</color>
+	<color name="blue_dark">#286989</color>
 	<color name="red_normal">#d80d18</color>
 	<color name="red_dark">#aa2219</color>
 	<color name="list_bg_top_normal_odd">#ebebeb</color>

@@ -8,124 +8,61 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/gray_dark" >
-
-        <ImageView
-            android:id="@+id/img_detail_comic_thumb"
-            android:layout_width="96dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:padding="@dimen/padding_large" />
+        android:background="@color/gray_dark"
+        android:paddingRight="@dimen/padding_large" >
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingBottom="@dimen/padding_medium" >
-
-            <TextView
-                android:id="@+id/txt_detail_comicTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingRight="@dimen/padding_large"
-                android:paddingTop="@dimen/padding_large"
-                android:text="宇宙兄弟"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/txt_detail_auther"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingLeft="@dimen/padding_large"
                 android:paddingRight="@dimen/padding_large"
-                android:paddingTop="@dimen/padding_small"
+                android:paddingTop="@dimen/padding_large"
                 android:text="小山 宙哉"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/txt_detail_publisher"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingBottom="@dimen/padding_large"
+                android:paddingLeft="@dimen/padding_large"
                 android:paddingRight="@dimen/padding_large"
                 android:paddingTop="@dimen/padding_small"
                 android:text="モーニングKC"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/white" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/padding_small"
-                android:paddingLeft="@dimen/padding_large"
-                android:paddingRight="@dimen/padding_large" >
-
-                <Button
-                    android:id="@+id/btn_ihaveall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/selector_btn_ihaveall"
-                    android:minHeight="@dimen/btn_height"
-                    android:minWidth="0dp"
-                    android:paddingBottom="@dimen/btn_padding_topbottom"
-                    android:paddingLeft="@dimen/btn_padding_leftright"
-                    android:paddingRight="@dimen/btn_padding_leftright"
-                    android:paddingTop="@dimen/btn_padding_topbottom"
-                    android:text="@string/btn_ihaveall"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <CheckBox
-                    android:id="@+id/checkBox_ihaveall"
-                    style="@android:style/Widget.Holo.CompoundButton.CheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:paddingRight="@dimen/padding_small"
-                    android:text="@string/txt_ihaveall"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:visibility="visible" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/padding_small"
-                android:paddingLeft="@dimen/padding_large"
-                android:paddingRight="@dimen/padding_large" >
-
-                <Button
-                    android:id="@+id/btn_reserve"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/selector_btn_reserve"
-                    android:minHeight="@dimen/btn_height"
-                    android:minWidth="0dp"
-                    android:paddingBottom="@dimen/btn_padding_topbottom"
-                    android:paddingLeft="@dimen/btn_padding_leftright"
-                    android:paddingRight="@dimen/btn_padding_leftright"
-                    android:paddingTop="@dimen/btn_padding_topbottom"
-                    android:text="@string/btn_reserve"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:visibility="visible" />
-
-            </RelativeLayout>
-
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_reserve"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/selector_btn_reserve"
+            android:minHeight="@dimen/btn_height"
+            android:minWidth="0dp"
+            android:paddingBottom="@dimen/btn_padding_topbottom"
+            android:paddingLeft="@dimen/btn_padding_leftright"
+            android:paddingRight="@dimen/btn_padding_leftright"
+            android:paddingTop="@dimen/btn_padding_topbottom"
+            android:text="@string/btn_reserve"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
     </LinearLayout>
 
     <ListView

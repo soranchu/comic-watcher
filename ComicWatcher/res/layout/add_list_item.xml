@@ -37,7 +37,7 @@
             android:paddingLeft="@dimen/padding_large"
             android:paddingRight="@dimen/padding_large"
             android:paddingTop="@dimen/padding_small"
-            android:text="全26巻 / 小山宙哉 / 講談社"
+            android:text="26巻 / 小山宙哉 / 講談社"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/gray_dark"
             android:textStyle="normal" />

@@ -14,6 +14,7 @@
     <string name="menu_saved">フォローしています</string>
     <string name="search_title">タイトルを入力してください</string>
     <string name="txt_series_num">%d巻</string>
+    <string name="txt_series_ihave_num">%d</string>
     <string name="txt_scheduled_date">%s 発売予定</string>
     <string name="txt_not_scheduled">新刊発売予定はありません</string>
     <string name="txt_release_date">%s</string>
